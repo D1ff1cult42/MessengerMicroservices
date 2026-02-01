@@ -2,16 +2,17 @@ package org.d1ff.authservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "auth_refresh_tokens")
 @AllArgsConstructor
@@ -47,8 +48,6 @@ public class RefreshToken {
 
     @PreUpdate
     public void preUpdate() {
-        if (revoked != null && revoked && revokedAt == null) {
-            revokedAt = new Timestamp(System.currentTimeMillis());
-        }
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 }
