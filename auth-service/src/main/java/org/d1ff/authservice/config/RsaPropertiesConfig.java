@@ -1,22 +1,22 @@
 package org.d1ff.authservice.config;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-@Configuration
+@ConfigurationProperties(prefix = "jwt")
 @Getter
-public class RsaPrivateConfig {
-    
-    private final RSAPrivateKey privateKey;
 
-    public RsaPropertiesConfig(@Value("${jwt.private-key}") String privateKeyContent) {
-        this.privateKey = parsePrivateKey(privateKeyContent);
+public class RsaPropertiesConfig {
+
+private RSAPrivateKey privateKey;
+
+    public RsaPropertiesConfig(String privateKey) {
+        this.privateKey = parsePrivateKey(privateKey);
     }
 
     private RSAPrivateKey parsePrivateKey(String key) {
