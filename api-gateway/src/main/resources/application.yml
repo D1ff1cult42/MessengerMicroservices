@@ -1,1 +1,75 @@
-spring.application.name=api-gateway
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 2s
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: http://auth-service:8081
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: authCircuitBreaker
+                    fallbackUri: forward:/fallback/auth-service
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter:
+                      replenishRate: 10
+                      burstCapacity: 20
+                      requestedTokens: 1
+
+            - id: message-service
+              uri: http://message-service:8082
+              predicates:
+                - Path=/api/messages/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: messageCircuitBreaker
+                    fallbackUri: forward:/fallback/message-service
+
+jwt:
+  public-key: ${JWT_PUBLIC_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,ratelimiters
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      authCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      messageCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      authCircuitBreaker:
+        timeoutDuration: 3s
+      messageCircuitBreaker:
+        timeoutDuration: 5s
