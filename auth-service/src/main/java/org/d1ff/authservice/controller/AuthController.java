@@ -6,23 +6,25 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.d1ff.authservice.dto.response.AuthResponse;
 import org.d1ff.authservice.dto.request.LoginRequest;
 import org.d1ff.authservice.dto.request.RefreshTokenRequest;
 import org.d1ff.authservice.dto.request.RegisterRequest;
 import org.d1ff.authservice.dto.response.ErrorResponse;
-import org.d1ff.authservice.service.AuthService;
+import org.d1ff.authservice.service.impl.AuthServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name = "AuthController", description = "Controller for user authentication operations")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
 
     @Operation(summary = "Register a new user",
             description = "Register a new user with the provided email and password.",
@@ -63,7 +65,8 @@ public class AuthController {
     )
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
+        log.info("Received registration request for email: {}", request.email());
+        AuthResponse response = authServiceImpl.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -106,7 +109,8 @@ public class AuthController {
     )
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request);
+        log.info("Received login request for email: {}", request.email());
+        AuthResponse response = authServiceImpl.login(request);
         return ResponseEntity.ok(response);
     }
 
@@ -149,7 +153,7 @@ public class AuthController {
     )
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        AuthResponse response = authService.refreshToken(request.refreshToken());
+        AuthResponse response = authServiceImpl.refreshToken(request.refreshToken());
         return ResponseEntity.ok(response);
     }
 
@@ -180,7 +184,8 @@ public class AuthController {
     )
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
-        authService.logout(request.refreshToken());
+        authServiceImpl.logout(request.refreshToken());
+        log.info("User logged out successfully");
         return ResponseEntity.noContent().build();
     }
 
@@ -211,8 +216,8 @@ public class AuthController {
     )
     @PostMapping("/logout-all")
     public ResponseEntity<Void> logoutAll(@RequestParam String email) {
-        authService.logoutAll(email);
+        authServiceImpl.logoutAll(email);
+        log.info("User logged out all successfully");
         return ResponseEntity.noContent().build();
     }
 }
-

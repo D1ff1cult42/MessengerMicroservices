@@ -8,6 +8,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.d1ff.authservice.config.RsaPropertiesConfig;
 import org.d1ff.authservice.entity.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class JwtService {
 
@@ -58,8 +60,10 @@ public class JwtService {
 
         try {
             signedJWT.sign(signer);
+            log.info("JWT generated successfully");
             return signedJWT.serialize();
         } catch (JOSEException e) {
+            log.error(e.getMessage());
             throw new RuntimeException("Failed to sign JWT token", e);
         }
     }

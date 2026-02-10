@@ -16,6 +16,5 @@ public record RegisterRequest(
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Schema(description = "User's password", example = "strongpassword123")
     String password
-    )
+)
 {}
-

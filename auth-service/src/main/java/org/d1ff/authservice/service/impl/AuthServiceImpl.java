@@ -1,4 +1,4 @@
-package org.d1ff.authservice.service;
+package org.d1ff.authservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,7 @@ import org.d1ff.authservice.entity.User;
 import org.d1ff.authservice.exception.InvalidCredentialsException;
 import org.d1ff.authservice.exception.UserAlreadyExistsException;
 import org.d1ff.authservice.repository.UserRepository;
+import org.d1ff.authservice.service.interfaces.AuthService;
 import org.d1ff.authservice.service.jwt.JwtService;
 import org.d1ff.authservice.service.jwt.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ import java.time.Duration;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
@@ -33,7 +34,7 @@ public class AuthService {
     @Value("${auth.access-token-expiration}")
     private Duration accessTokenExpiration;
 
-    @Transactional
+    @Override
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             log.warn("Registration attempt for existing email: {}", request.email());
@@ -60,7 +61,7 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional
+    @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
@@ -92,7 +93,7 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional
+    @Override
     public AuthResponse refreshToken(String refreshTokenStr) {
         RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
         refreshTokenService.verifyExpiration(refreshToken);
@@ -112,14 +113,14 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional
+    @Override
     public void logout(String refreshTokenStr) {
         RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
         log.info("User logged out: {}", refreshToken.getUser().getEmail());
         refreshTokenService.revokeToken(refreshToken);
     }
 
-    @Transactional
+    @Override
     public void logoutAll(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
