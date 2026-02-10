@@ -11,8 +11,8 @@ import java.util.Base64;
 
 @Configuration
 @Getter
-public class RsaPropertiesConfig {
-
+public class RsaPrivateConfig {
+    
     private final RSAPrivateKey privateKey;
 
     public RsaPropertiesConfig(@Value("${jwt.private-key}") String privateKeyContent) {
