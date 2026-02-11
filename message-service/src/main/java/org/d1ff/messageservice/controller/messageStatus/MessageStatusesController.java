@@ -35,4 +35,16 @@ public class MessageStatusesController {
                 .fromPage(messageStatusService
                         .getMessagesForUserInChat(userId, chatId, PageRequest.of(page, size))));
     }
+
+    @GetMapping("/from-user/{userId}")
+    public ResponseEntity<PageResponse<MessageStatusResponse>> getAllStatusesFromUserInChat(@RequestHeader("X-User-Id") UUID participantId,
+                                                                                             @RequestHeader("X-User-Role") String role,
+                                                                                             @PathVariable UUID userId,
+                                                                                             @RequestParam UUID chatId,
+                                                                                             @RequestParam(defaultValue = "0") int page,
+                                                                                             @RequestParam(defaultValue = "10") int size){
+        return ResponseEntity.ok(PageResponse
+                .fromPage(messageStatusService
+                        .getAllStatusesFromUserInChat(participantId, userId, chatId, role, PageRequest.of(page, size))));
+     }
 }
