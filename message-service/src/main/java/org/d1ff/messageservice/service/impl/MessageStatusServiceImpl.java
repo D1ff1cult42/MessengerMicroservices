@@ -92,4 +92,14 @@ public class MessageStatusServiceImpl implements MessageStatusService {
                 .orElseThrow(() -> new MessageNotFound("message not found! : " + chatId));
         return messageStatusResponseMapper.toMessageStatusResponseWithoutUrl(messageStatus, messageResponseMapper);
     }
+
+    @Override
+    public Page<MessageStatusResponse> getAllStatusesFromUserInChat(UUID userId, UUID fromUserId, UUID chatId, String role, Pageable pageable){
+        List<UUID> participants = chatGrpcClient.getChatParticipants(chatId);
+        if(!(participants.contains(userId) && participants.contains(fromUserId)) || !role.equals("ADMIN")){
+            throw new MessageNotFound("Chat not found: " + chatId);
+        }
+        return messageStatusRepository.findMessageStatusesByFromUserAndChatAndNotDeleted(fromUserId, chatId, pageable)
+                .map(messageStatus -> messageStatusResponseMapper.toMessageStatusResponse(messageStatus, messageResponseMapper, fileService));
+    }
 }

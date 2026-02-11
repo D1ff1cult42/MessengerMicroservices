@@ -1,5 +1,6 @@
 package org.d1ff.messageservice.repository;
 
+import org.d1ff.messageservice.dto.response.MessageStatusResponse;
 import org.d1ff.messageservice.entity.DeliveryStatus;
 import org.d1ff.messageservice.entity.MessageStatus;
 import org.springframework.data.domain.Page;
@@ -29,4 +30,6 @@ public interface MessageStatusRepository extends JpaRepository<MessageStatus, Lo
     @Query("SELECT ms FROM MessageStatus ms LEFT JOIN FETCH ms.message m WHERE ms.userId = :userId AND m.chatId = :chatId AND m.deleted = false ORDER BY m.createdAt DESC")
     Optional<MessageStatus> findLatestMessageStatusForUserInChat(@Param("userId") UUID userId, @Param("chatId") UUID chatId);
 
+    @Query("SELECT ms FROM MessageStatus ms LEFT JOIN FETCH ms.message m WHERE m.fromUser = :userId AND m.chatId = :chatId AND m.deleted = false ORDER BY m.createdAt DESC")
+    Page<MessageStatus> findMessageStatusesByFromUserAndChatAndNotDeleted(@Param("userId") UUID userId, @Param("chatId") UUID chatId, Pageable pageable);
 }

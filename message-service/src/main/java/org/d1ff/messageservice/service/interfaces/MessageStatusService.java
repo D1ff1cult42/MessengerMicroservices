@@ -33,4 +33,8 @@ public interface MessageStatusService {
     //FOR RECIPIENT
     @Transactional(readOnly = true)
     MessageStatusResponse getLastMessageStatusForUserInChat(UUID userId, UUID chatId);
+
+    //FOR RECIPIENT
+    @Transactional(readOnly = true)
+    Page<MessageStatusResponse> getAllStatusesFromUserInChat(UUID userId, UUID fromUserId, UUID chatId, String role, Pageable pageable);
 }
