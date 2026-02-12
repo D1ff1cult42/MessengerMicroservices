@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.d1ff.apigateway.service.interfaces.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
@@ -16,7 +19,6 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.util.*;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -33,10 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("Missing or invalid Authorization header for path: {}", path);
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Missing or invalid Authorization header\"}");
+            log.debug("No Bearer token found for path: {}, passing to next filter", path);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -59,6 +59,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             wrappedRequest.addHeader("X-User-Id", userId != null ? userId : "");
             wrappedRequest.addHeader("X-User-Email", email != null ? email : "");
             wrappedRequest.addHeader("X-User-Role", role != null ? role : "");
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    email, null, List.of(new SimpleGrantedAuthority("ROLE_" + (role != null ? role : "USER")))
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             log.debug("JWT validated successfully for user: {} (ID: {})", email, userId);
 
@@ -109,3 +114,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 }
+
