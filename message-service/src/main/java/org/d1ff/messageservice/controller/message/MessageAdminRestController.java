@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin/messages")
+@RequestMapping("/api/messages/admin")
 @Tag(name = "MessageAdminRestController", description = "Admin controller for managing messages")
 public class MessageAdminRestController {
     private final MessageService messageService;
@@ -63,7 +63,7 @@ public class MessageAdminRestController {
                 )
             }
     )
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<PageResponse<MessageResponse>> getUserMessagesForAdmin(
             @Parameter(description = "ID of the user whose messages to retrieve", required = true)
             @PathVariable UUID userId,
@@ -118,7 +118,7 @@ public class MessageAdminRestController {
                 )
             }
     )
-    @GetMapping("/{chatId}")
+    @GetMapping("/chats/{chatId}")
     public ResponseEntity<PageResponse<MessageResponse>> getMessagesInChatForAdmin(
             @Parameter(description = "ID of the chat to retrieve messages from", required = true)
             @PathVariable UUID chatId,

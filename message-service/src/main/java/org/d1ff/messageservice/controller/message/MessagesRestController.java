@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.d1ff.dto.response.ErrorResponse;
 import org.d1ff.messageservice.dto.request.CreateMessageRequest;
@@ -66,7 +67,7 @@ public class MessagesRestController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> sendMessage(
             @Parameter(description = "Message data with optional attachments", required = true)
-            @ModelAttribute CreateMessageRequest message,
+            @Valid @ModelAttribute CreateMessageRequest message,
             @Parameter(description = "ID of the user sending the message(FOR DEBUG ONLY, THIS PARAMETER IS TAKEN FROM API-GATEWAY)", required = true)
             @RequestHeader("X-User-Id") UUID userId) {
         MessageResponse messageResponse = messageService.sendMessage(message, userId);

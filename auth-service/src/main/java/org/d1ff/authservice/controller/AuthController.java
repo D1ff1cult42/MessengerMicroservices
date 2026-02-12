@@ -11,7 +11,7 @@ import org.d1ff.authservice.dto.response.AuthResponse;
 import org.d1ff.authservice.dto.request.LoginRequest;
 import org.d1ff.authservice.dto.request.RefreshTokenRequest;
 import org.d1ff.authservice.dto.request.RegisterRequest;
-import org.d1ff.authservice.dto.response.ErrorResponse;
+import org.d1ff.dto.response.ErrorResponse;
 import org.d1ff.authservice.service.impl.AuthServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

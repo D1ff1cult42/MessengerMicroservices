@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequestMapping("/api/messages/{messageId}")
 @Tag(name = "MessageRestController", description = "Controller for managing individual messages")
 public class MessageRestController {
-    private MessageService messageService;
+    private final MessageService messageService;
 
     @Operation(summary = "Delete a message",
             description = "Delete a message by its ID. Admins can delete any message, regular users can only delete their own messages.",

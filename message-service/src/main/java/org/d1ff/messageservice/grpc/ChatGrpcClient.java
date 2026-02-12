@@ -2,6 +2,7 @@ package org.d1ff.messageservice.grpc;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,6 @@ public class ChatGrpcClient {
         return true;
     }
     public List<UUID> getChatParticipants(UUID chatId){
-        return List.of(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID());
+        return new ArrayList<>(List.of(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID()));
     }
 }
