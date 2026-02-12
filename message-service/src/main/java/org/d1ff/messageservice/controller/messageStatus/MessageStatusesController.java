@@ -5,6 +5,7 @@ import org.d1ff.messageservice.dto.response.MessageStatusResponse;
 import org.d1ff.messageservice.dto.response.MessageStatusWithoutMessageResponse;
 import org.d1ff.messageservice.service.interfaces.MessageStatusService;
 import org.d1ff.page.PageResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +44,12 @@ public class MessageStatusesController {
                                                                                              @RequestParam UUID chatId,
                                                                                              @RequestParam(defaultValue = "0") int page,
                                                                                              @RequestParam(defaultValue = "10") int size){
-        return ResponseEntity.ok(PageResponse
-                .fromPage(messageStatusService
-                        .getAllStatusesFromUserInChat(participantId, userId, chatId, role, PageRequest.of(page, size))));
+        Page<MessageStatusResponse> response;
+        if(role.equals("ADMIN")){
+            response = messageStatusService.getAllStatusesForMessageForAdmin(userId, chatId, PageRequest.of(page, size));
+        }else{
+            response = messageStatusService.getAllStatusesFromUserInChat(participantId, userId, chatId, PageRequest.of(page, size));
+        }
+        return ResponseEntity.ok(PageResponse.fromPage(response));
      }
 }

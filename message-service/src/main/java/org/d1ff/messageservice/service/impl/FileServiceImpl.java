@@ -6,6 +6,7 @@ import io.minio.PutObjectArgs;
 import io.minio.http.Method;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.d1ff.messageservice.config.MinioProperties;
 import org.d1ff.messageservice.dto.MinioFileProperties;
 import org.d1ff.messageservice.exceptions.minio.FailedToUploadMinio;
@@ -19,6 +20,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
@@ -32,9 +34,12 @@ public class FileServiceImpl implements FileService {
     @Override
     public MinioFileProperties uploadFile(MultipartFile file){
         if (file.getSize() > fileMaxSizeBytes) {
+            log.error("Failed to upload file: {}. File size {} exceeds the maximum allowed limit of {} bytes.",
+                    file.getOriginalFilename(), file.getSize(), fileMaxSizeBytes);
             throw new FailedToUploadMinio("File size exceeds the maximum allowed limit.");
         }
         if (file.getOriginalFilename() == null){
+            log.error("Failed to upload file. File name is missing.");
             throw new FailedToUploadMinio("File name is missing.");
         }
 
@@ -55,8 +60,11 @@ public class FileServiceImpl implements FileService {
                             .object(uniqueFilename)
                             .build());
 
+            log.info("File {} uploaded successfully to bucket {} with object name {}",
+                    file.getOriginalFilename(), bucketName, uniqueFilename);
             return new MinioFileProperties(bucketName,uniqueFilename);
         } catch (Exception er) {
+            log.error("Failed to upload file {} to Minio: {}", file.getOriginalFilename(), er.getMessage());
             throw new FailedToUploadMinio(file.getOriginalFilename());
         }
     }
@@ -67,8 +75,11 @@ public class FileServiceImpl implements FileService {
             Duration bucketExpiration = minioProperties.getBucketExpirations().get(minioFileProperties.bucketName());
             if (bucketExpiration == null) {
                 bucketExpiration = Duration.ofHours(24);
+                log.warn("No specific expiration found for bucket {}. Using default expiration of 24 hours.", minioFileProperties.bucketName());
             }
 
+            log.info("Generating presigned URL for bucket: {}, object: {}, with expiration: {} seconds",
+                    minioFileProperties.bucketName(), minioFileProperties.objectName(), bucketExpiration.toSeconds());
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
@@ -77,6 +88,8 @@ public class FileServiceImpl implements FileService {
                             .expiry((int) bucketExpiration.toSeconds())
                             .build());
         } catch (Exception e) {
+            log.error("Failed to generate presigned URL for bucket: {}, object: {}. Error: {}",
+                    minioFileProperties.bucketName(), minioFileProperties.objectName(), e.getMessage());
             throw new FailedToUploadMinio("Failed to generate presigned URL for " + minioFileProperties.objectName());
         }
     }

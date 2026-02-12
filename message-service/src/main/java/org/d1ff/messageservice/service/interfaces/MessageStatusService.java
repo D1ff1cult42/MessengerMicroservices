@@ -36,5 +36,9 @@ public interface MessageStatusService {
 
     //FOR RECIPIENT
     @Transactional(readOnly = true)
-    Page<MessageStatusResponse> getAllStatusesFromUserInChat(UUID userId, UUID fromUserId, UUID chatId, String role, Pageable pageable);
+    Page<MessageStatusResponse> getAllStatusesFromUserInChat(UUID userId, UUID fromUserId, UUID chatId, Pageable pageable);
+
+    //FOR ADMIN
+    @Transactional(readOnly = true)
+    Page<MessageStatusResponse> getAllStatusesForMessageForAdmin(UUID fromUserId, UUID chatId, Pageable pageable);
 }
