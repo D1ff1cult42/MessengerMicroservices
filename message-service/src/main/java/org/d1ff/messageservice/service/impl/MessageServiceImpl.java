@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.d1ff.messageservice.dto.MinioFileProperties;
 import org.d1ff.messageservice.dto.request.CreateMessageRequest;
-import org.d1ff.messageservice.dto.request.UpdateMessageRequest;
 import org.d1ff.messageservice.dto.response.MessageResponse;
 import org.d1ff.messageservice.entity.Message;
 import org.d1ff.messageservice.entity.MessageType;
@@ -20,7 +19,6 @@ import org.d1ff.messageservice.utils.ExtensionToTypeConverter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -125,21 +123,22 @@ public class MessageServiceImpl implements MessageService {
 
     //FOR AUTHOR
     @Override
-    public MessageResponse updateMessage(UUID userId, UpdateMessageRequest updateMessageRequest) {
-        log.info("Attempting to update message with ID {} by user {}", updateMessageRequest.messageId(), userId);
-        Message message = messageRepository.findByIdAndNotDeleted(updateMessageRequest.messageId())
-                .orElseThrow(() -> new MessageNotFound("Message not found: " + updateMessageRequest.messageId()));
+    public MessageResponse updateMessage(UUID userId, String newContent, Long messageId) {
+
+        log.info("Attempting to update message with ID {} by user {}", messageId, userId);
+        Message message = messageRepository.findByIdAndNotDeleted(messageId)
+                .orElseThrow(() -> new MessageNotFound("Message not found: " + messageId));
 
         if (!message.getFromUser().equals(userId)) {
-            log.error("User {} is not the author of the message {}. Update denied.", userId, updateMessageRequest.messageId());
-            throw new AccessDeniedException("User is not the author of the message: " + updateMessageRequest.messageId());
+            log.error("User {} is not the author of the message {}. Update denied.", userId, messageId);
+            throw new AccessDeniedException("User is not the author of the message: " + messageId);
         }
 
-        message.setContent(updateMessageRequest.content());
+        message.setContent(newContent);
         message.setIsEdited(true);
         message.setUpdatedAt(LocalDateTime.now());
 
-        log.info("Message with ID {} updated by user {}. New content: {}", updateMessageRequest.messageId(), userId, updateMessageRequest.content());
+        log.info("Message with ID {} updated by user {}. New content: {}", messageId, userId, newContent);
         return messageResponseMapper.toMessageResponseWithUrl(message, fileService);
     }
 

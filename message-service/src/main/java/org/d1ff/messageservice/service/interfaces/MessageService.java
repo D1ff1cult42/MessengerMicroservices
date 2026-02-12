@@ -1,7 +1,6 @@
 package org.d1ff.messageservice.service.interfaces;
 
 import org.d1ff.messageservice.dto.request.CreateMessageRequest;
-import org.d1ff.messageservice.dto.request.UpdateMessageRequest;
 import org.d1ff.messageservice.dto.response.MessageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,7 @@ public interface MessageService {
 
     //FOR AUTHOR
     @Transactional
-    MessageResponse updateMessage(UUID userId, UpdateMessageRequest updateMessageRequest);
+    MessageResponse updateMessage(UUID userId, String newContent, Long messageId);
 
     //FOR ADMIN
     @Transactional(readOnly = true)
