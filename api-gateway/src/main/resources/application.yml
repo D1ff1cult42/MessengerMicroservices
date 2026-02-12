@@ -24,12 +24,6 @@ spring:
                   args:
                     name: authCircuitBreaker
                     fallbackUri: forward:/fallback/auth-service
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter:
-                      replenishRate: 10
-                      burstCapacity: 20
-                      requestedTokens: 1
 
             - id: message-service
               uri: http://message-service:8082
@@ -48,7 +42,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,circuitbreakers,ratelimiters
+        include: health,circuitbreakers
 
 resilience4j:
   circuitbreaker:
