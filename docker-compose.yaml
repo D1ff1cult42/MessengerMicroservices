@@ -1,5 +1,92 @@
 version: "3.8"
 services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: messenger-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  message-service:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    container_name: messenger-message-service
+    ports:
+      - "8082:8082"
+    environment:
+      DATABASE_URL: ${MESSAGE_DATASOURCE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: messenger-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: messenger-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
   postgres:
     image: postgres:15
     container_name: messenger-postgres
