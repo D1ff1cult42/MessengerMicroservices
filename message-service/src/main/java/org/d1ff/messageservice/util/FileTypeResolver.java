@@ -17,16 +17,6 @@ public class FileTypeResolver {
     private final BucketResolver bucketResolver;
 
     /**
-     * Resolves bucket name for the given filename using config from application.yml.
-     *
-     * @param filename e.g. "photo.jpg"
-     * @return bucket name, e.g. "message-image"
-     */
-    public String resolveBucket(String filename) {
-        return bucketResolver.resolveBucket(filename);
-    }
-
-    /**
      * Resolves {@link MessageType} from the bucket name.
      * Expects bucket names to follow the convention {@code message-<type>}.
      *
