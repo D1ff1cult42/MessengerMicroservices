@@ -6,13 +6,13 @@ grpc:
 
 bucket-resolver:
   buckets:
-    message_image:
+    message-image:
       extensions: jpg, jpeg, png, gif, bmp, webp, svg
-    message_video:
+    message-video:
       extensions: mp4, avi, mov, mkv, webm
-    message_audio:
+    message-audio:
       extensions: mp3, wav, ogg, flac, aac
-    message_document:
+    message-document:
       extensions: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, csv, zip, rar
 
 spring:
@@ -20,8 +20,8 @@ spring:
     name: message-service
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 400MB
+      max-request-size: 400MB
   datasource:
     url: ${MESSAGE_DATASOURCE_URL}
     username: ${DATABASE_USERNAME}

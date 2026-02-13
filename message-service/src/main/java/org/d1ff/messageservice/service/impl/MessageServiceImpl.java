@@ -174,7 +174,7 @@ public class MessageServiceImpl implements MessageService {
 
         if (message.getFromUser().equals(userId)) {
             log.info("User {} is the author of the message {}. Fetching message details.", userId, messageId);
-            return messageResponseMapper.toMessageResponse(message);
+            return messageResponseMapper.toMessageResponseWithUrl(message, fileService);
         }
         log.error("User {} is not the author of the message {}. Access denied.", userId, messageId);
         throw new AccessDeniedException("User has no access to message: " + messageId);
@@ -185,7 +185,7 @@ public class MessageServiceImpl implements MessageService {
     public MessageResponse getMessageByIdForAdmin(Long messageId) {
         log.info("Admin fetching message with ID {}", messageId);
         return messageRepository.findById(messageId)
-                .map(messageResponseMapper::toMessageResponse)
+                .map(message -> messageResponseMapper.toMessageResponseWithUrl(message, fileService))
                 .orElseThrow(() -> new MessageNotFound("Message not found: " + messageId));
     }
 }
