@@ -1,4 +1,4 @@
-package org.d1ff.messageservice.config;
+package com.d1ff.fileservice.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,9 +11,24 @@ import java.util.Map;
 @Data
 @ConfigurationProperties(prefix = "minio")
 @Component
-public class MinioProperties{
+public class MinioProperties {
     private String endpoint;
     private String accessKey;
     private String secretKey;
-    private Map<String, Duration> bucketExpirations = new HashMap<>();
+    private long fileMaxSizeBytes;
+    private Duration defaultPresignedUrlExpiration = Duration.ofHours(24);
+    private Map<String, BucketProperties> buckets = new HashMap<>();
+
+    @Data
+    public static class BucketProperties {
+        private Duration presignedUrlExpiration;
+    }
+
+    public Duration getPresignedUrlExpiration(String bucketName) {
+        BucketProperties bucket = buckets.get(bucketName);
+        if (bucket != null && bucket.getPresignedUrlExpiration() != null) {
+            return bucket.getPresignedUrlExpiration();
+        }
+        return defaultPresignedUrlExpiration;
+    }
 }
