@@ -1,36 +1,27 @@
-minio:
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
-  endpoint: ${MINIO_ENDPOINT}
-  bucket-expirations:
-    video: 1h
-    image: 3h
-    audio: 5h
-    document: 6h
-  file-max-size-bytes: 104857600 # 100 MB
+grpc:
+  client:
+    file-service:
+      address: static://${FILE_SERVICE_GRPC_HOST:file-service}:${FILE_SERVICE_GRPC_PORT:9091}
+      negotiation-type: plaintext
 
-supported-file-types:
-  video:
-    - avi
-    - mov
-  image:
-    - jpeg
-    - jpg
-    - png
-    - gif
-  audio:
-    - mp3
-    - wav
-  document:
-    - pdf
-    - docx
-    - doc
-    - xlsx
-    - txt
+bucket-resolver:
+  buckets:
+    message_image:
+      extensions: jpg, jpeg, png, gif, bmp, webp, svg
+    message_video:
+      extensions: mp4, avi, mov, mkv, webm
+    message_audio:
+      extensions: mp3, wav, ogg, flac, aac
+    message_document:
+      extensions: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, csv, zip, rar
 
 spring:
   application:
     name: message-service
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   datasource:
     url: ${MESSAGE_DATASOURCE_URL}
     username: ${DATABASE_USERNAME}

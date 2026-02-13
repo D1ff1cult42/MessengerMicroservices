@@ -2,20 +2,21 @@ package org.d1ff.messageservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.d1ff.messageservice.dto.MinioFileProperties;
+import org.d1ff.bucket.BucketResolver;
 import org.d1ff.messageservice.dto.request.CreateMessageRequest;
+import org.d1ff.messageservice.dto.response.FileUploadResponse;
 import org.d1ff.messageservice.dto.response.MessageResponse;
 import org.d1ff.messageservice.entity.Message;
 import org.d1ff.messageservice.entity.MessageType;
 import org.d1ff.messageservice.exceptions.AccessDeniedException;
 import org.d1ff.messageservice.exceptions.MessageNotFound;
 import org.d1ff.messageservice.grpc.ChatGrpcClient;
+import org.d1ff.messageservice.grpc.FileGrpcClient;
 import org.d1ff.messageservice.mapper.response.MessageResponseMapper;
 import org.d1ff.messageservice.repository.MessageRepository;
-import org.d1ff.messageservice.service.interfaces.FileService;
 import org.d1ff.messageservice.service.interfaces.MessageService;
 import org.d1ff.messageservice.service.interfaces.MessageStatusService;
-import org.d1ff.messageservice.utils.ExtensionToTypeConverter;
+import org.d1ff.messageservice.util.FileTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,12 +30,13 @@ import java.util.UUID;
 @Slf4j
 public class MessageServiceImpl implements MessageService {
 
-    private final FileService fileService;
+    private final FileGrpcClient fileService;
     private final ChatGrpcClient chatGrpcClient;
     private final MessageRepository messageRepository;
     private final MessageResponseMapper messageResponseMapper;
-    private final ExtensionToTypeConverter extensionToTypeConverter;
     private final MessageStatusService messageStatusService;
+    private final FileTypeResolver fileTypeResolver;
+    private final BucketResolver bucketResolver;
 
     //FOR AUTHOR
     @Override
@@ -45,7 +47,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         MessageType messageType;
-        MinioFileProperties fileProperties = null;
+        FileUploadResponse fileUploadResponse = null;
         String fileName = null;
         Long fileSize = null;
 
@@ -54,8 +56,9 @@ public class MessageServiceImpl implements MessageService {
 
 
         if (createMessageRequest.multipartFile() != null) {
-            messageType = extensionToTypeConverter.convert(createMessageRequest.multipartFile().getOriginalFilename());
-            fileProperties = fileService.uploadFile(createMessageRequest.multipartFile());
+            messageType = fileTypeResolver.resolveMessageType(createMessageRequest.multipartFile().getOriginalFilename());
+            String bucket = bucketResolver.resolveBucket(createMessageRequest.multipartFile().getOriginalFilename());
+            fileUploadResponse = fileService.uploadFile(bucket, createMessageRequest.multipartFile());
             fileName = createMessageRequest.multipartFile().getOriginalFilename();
             fileSize = createMessageRequest.multipartFile().getSize();
         } else {
@@ -77,11 +80,11 @@ public class MessageServiceImpl implements MessageService {
                 .type(messageType)
                 .build();
 
-        if (fileProperties != null) {
+        if (fileUploadResponse != null) {
             log.info("Message {} contains file attachment. Object name: {}, Bucket name: {}, Original file name: {}, File size: {} bytes",
-                    createMessageRequest.content(), fileProperties.objectName(), fileProperties.bucketName(), fileName, fileSize);
-            message.setObjectName(fileProperties.objectName());
-            message.setBucketName(fileProperties.bucketName());
+                    createMessageRequest.content(), fileUploadResponse.objectName(), fileUploadResponse.bucketName(), fileName, fileSize);
+            message.setObjectName(fileUploadResponse.objectName());
+            message.setBucketName(fileUploadResponse.bucketName());
             message.setFileName(fileName);
             message.setFileSize(fileSize);
         }
@@ -110,7 +113,7 @@ public class MessageServiceImpl implements MessageService {
 
         message.setDeletedAt(LocalDateTime.now());
         message.setDeleted(true);
-        log.error("Message {} marked as deleted by user {}", messageId, userId);
+        log.info("Message {} marked as deleted by user {}", messageId, userId);
     }
 
     //FOR ADMIN
@@ -119,6 +122,10 @@ public class MessageServiceImpl implements MessageService {
         log.info("Admin attempting to delete message with ID {}", messageId);
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFound("Message not found: " + messageId));
+
+        message.setDeletedAt(LocalDateTime.now());
+        message.setDeleted(true);
+        log.info("Message {} marked as deleted by admin", messageId);
     }
 
     //FOR AUTHOR
