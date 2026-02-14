@@ -9,10 +9,10 @@ import org.d1ff.messageservice.entity.Message;
 import org.d1ff.messageservice.entity.MessageStatus;
 import org.d1ff.messageservice.exceptions.MessageNotFound;
 import org.d1ff.messageservice.grpc.ChatGrpcClient;
+import org.d1ff.messageservice.grpc.FileGrpcClient;
 import org.d1ff.messageservice.mapper.response.MessageResponseMapper;
 import org.d1ff.messageservice.mapper.response.MessageStatusResponseMapper;
 import org.d1ff.messageservice.repository.MessageStatusRepository;
-import org.d1ff.messageservice.service.interfaces.FileService;
 import org.d1ff.messageservice.service.interfaces.MessageStatusService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +32,7 @@ public class MessageStatusServiceImpl implements MessageStatusService {
     private final MessageStatusResponseMapper messageStatusResponseMapper;
     private final MessageResponseMapper messageResponseMapper;
     private final ChatGrpcClient chatGrpcClient;
-    private final FileService fileService;
-    private final RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+    private final FileGrpcClient fileService;
 
     //FOR AUTHOR
     @Override

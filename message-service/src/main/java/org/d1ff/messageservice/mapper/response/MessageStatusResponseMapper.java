@@ -3,7 +3,7 @@ package org.d1ff.messageservice.mapper.response;
 import org.d1ff.messageservice.dto.response.MessageStatusResponse;
 import org.d1ff.messageservice.dto.response.MessageStatusWithoutMessageResponse;
 import org.d1ff.messageservice.entity.MessageStatus;
-import org.d1ff.messageservice.service.interfaces.FileService;
+import org.d1ff.messageservice.grpc.FileGrpcClient;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,7 +16,7 @@ public interface MessageStatusResponseMapper {
     MessageStatusResponse toMessageStatusResponse(
             MessageStatus messageStatus,
             @Context MessageResponseMapper messageResponseMapper,
-            @Context FileService fileService
+            @Context FileGrpcClient fileService
     );
 
     @Mapping(target = "message", expression = "java(status.getMessage().getId())")

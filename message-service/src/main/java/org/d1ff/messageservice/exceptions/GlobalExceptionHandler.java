@@ -3,7 +3,6 @@ package org.d1ff.messageservice.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.d1ff.dto.response.ErrorResponse;
 import org.d1ff.messageservice.exceptions.minio.FailedToUploadMinio;
-import org.d1ff.messageservice.exceptions.minio.UnknownFileExtensionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -46,25 +45,12 @@ public class GlobalExceptionHandler {
                                                                      HttpServletRequest request) {
       ErrorResponse errorResponse = ErrorResponse.builder()
               .message(ex.getMessage())
-              .error("Failed to upload file to Minio")
-              .status(500)
+              .error("Failed to upload file")
+              .status(502)
               .timestamp(new java.sql.Timestamp(System.currentTimeMillis()))
               .path(request.getRequestURI())
               .build();
-         return ResponseEntity.status(500).body(errorResponse);
-   }
-
-   @ExceptionHandler(UnknownFileExtensionException.class)
-   public ResponseEntity<ErrorResponse> handleUnknownFileExtensionException(UnknownFileExtensionException ex,
-                                                                     HttpServletRequest request) {
-      ErrorResponse errorResponse = ErrorResponse.builder()
-              .message(ex.getMessage())
-              .error("Unknown file extension")
-              .status(400)
-              .timestamp(new java.sql.Timestamp(System.currentTimeMillis()))
-              .path(request.getRequestURI())
-              .build();
-         return ResponseEntity.status(400).body(errorResponse);
+         return ResponseEntity.status(502).body(errorResponse);
    }
 
    @ExceptionHandler(MethodArgumentNotValidException.class)

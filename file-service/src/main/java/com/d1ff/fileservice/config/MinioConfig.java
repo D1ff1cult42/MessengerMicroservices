@@ -1,4 +1,4 @@
-package org.d1ff.messageservice.config;
+package com.d1ff.fileservice.config;
 
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
@@ -17,6 +17,7 @@ public class MinioConfig {
 
     @Bean
     public MinioClient minioClient() {
+        log.info("Minio signed endpoint:{}",minioProperties.getEndpoint());
         return MinioClient.builder()
                 .endpoint(minioProperties.getEndpoint())
                 .credentials(minioProperties.getAccessKey(),
@@ -27,7 +28,7 @@ public class MinioConfig {
     @Bean
     public CommandLineRunner initMinioBuckets(MinioClient minioClient) {
         return args -> {
-            for (String bucketName : minioProperties.getBucketExpirations().keySet()) {
+            for (String bucketName : minioProperties.getBuckets().keySet()) {
                 try {
                     boolean exists = minioClient.bucketExists(
                             BucketExistsArgs.builder().bucket(bucketName).build());

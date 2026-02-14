@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.d1ff.common.grpc.file";
+option java_outer_classname = "FileServiceProto";
+
+package file;
+
+service FileGrpcService {
+
+  rpc UploadFile (stream UploadFileRequest) returns (UploadFileResponse);
+
+  rpc GetPresignedUrl (GetPresignedUrlRequest) returns (GetPresignedUrlResponse);
+
+}
+
+
+message UploadFileRequest {
+  oneof request {
+    FileMetadata metadata = 1;
+    FileChunk chunk = 2;
+  }
+}
+
+message FileMetadata {
+  string bucket = 1;
+  string filename = 2;
+  string content_type = 3;
+  int64 file_size = 4;
+}
+
+message FileChunk {
+  bytes data = 1;
+}
+
+message UploadFileResponse {
+  string bucket_name = 1;
+  string object_name = 2;
+}
+
+
+message GetPresignedUrlRequest {
+  string bucket_name = 1;
+  string object_name = 2;
+}
+
+message GetPresignedUrlResponse {
+  string url = 1;
+  int64 expires_in_seconds = 2;
+}

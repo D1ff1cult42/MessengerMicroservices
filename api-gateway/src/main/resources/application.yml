@@ -35,6 +35,16 @@ spring:
                     id: messageCircuitBreaker
                     fallbackUri: forward:/fallback/message-service
 
+            - id: file-service
+              uri: http://file-service:8083
+              predicates:
+                - Path=/api/files/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: fileCircuitBreaker
+                    fallbackUri: forward:/fallback/file-service
+
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
 
@@ -61,9 +71,18 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+      fileCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
       authCircuitBreaker:
         timeoutDuration: 3s
       messageCircuitBreaker:
         timeoutDuration: 5s
+      fileCircuitBreaker:
+        timeoutDuration: 10s

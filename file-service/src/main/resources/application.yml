@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: file-service
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+server:
+  port: 8083
+
+grpc:
+  server:
+    port: 9091
+
+minio:
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  endpoint: ${MINIO_ENDPOINT}
+  file-max-size-bytes: 524288000 # 100 MB
+  default-presigned-url-expiration: 24h
+  buckets:
+    message-image:
+      presigned-url-expiration: 3h
+    message-video:
+      presigned-url-expiration: 1h
+    message-audio:
+      presigned-url-expiration: 5h
+    message-document:
+      presigned-url-expiration: 6h
+    account-icon:
+      presigned-url-expiration: 12h
+    chat-icon:
+      presigned-url-expiration: 12h
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health

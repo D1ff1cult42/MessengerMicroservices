@@ -36,18 +36,44 @@ services:
       MESSAGE_DATASOURCE_URL: ${MESSAGE_DATASOURCE_URL}
       DATABASE_USERNAME: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      FILE_SERVICE_GRPC_HOST: file-service
+      FILE_SERVICE_GRPC_PORT: 9091
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      file-service:
+        condition: service_healthy
     networks:
       - messenger-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  file-service:
+    build:
+      context: ./file-service
+      dockerfile: Dockerfile
+    container_name: messenger-file-service
+    ports:
+      - "8083:8083"
+      - "9091:9091"
+    environment:
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
