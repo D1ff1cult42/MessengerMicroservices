@@ -54,10 +54,6 @@ public class Chat {
         participants.add(participant);
     }
 
-    public void removeParticipant(UUID userId) {
-        participants.removeIf(p -> p.getUserId().equals(userId));
-    }
-
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
