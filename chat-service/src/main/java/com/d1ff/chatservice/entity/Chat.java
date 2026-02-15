@@ -26,11 +26,17 @@ public class Chat {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "icon_name")
-    private String iconName;
-
     @Column(name = "icon_object_name")
     private String iconObjectName;
+
+    @Column(name = "icon_bucket_name")
+    private String iconBucketName;
+
+    @Column(name = "icon_file_size")
+    private Long iconFileSize;
+
+    @Column(name = "icon_updated_at")
+    private LocalDateTime iconUpdatedAt;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -57,5 +63,12 @@ public class Chat {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        if (this.iconObjectName != null) {
+            this.iconUpdatedAt = LocalDateTime.now();
+        }
     }
 }

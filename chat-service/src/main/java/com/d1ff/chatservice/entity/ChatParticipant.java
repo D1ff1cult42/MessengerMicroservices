@@ -33,9 +33,6 @@ public class ChatParticipant {
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt;
 
-    @Column(name = "is_muted")
-    private boolean isMuted;
-
     @PrePersist
     public void onCreate() {
         this.joinedAt = LocalDateTime.now();
