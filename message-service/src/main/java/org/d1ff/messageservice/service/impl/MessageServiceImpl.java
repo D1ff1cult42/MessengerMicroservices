@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.d1ff.bucket.BucketResolver;
 import org.d1ff.messageservice.dto.request.CreateMessageRequest;
-import org.d1ff.messageservice.dto.response.FileUploadResponse;
+import org.d1ff.dto.response.FileUploadResponse;
 import org.d1ff.messageservice.dto.response.MessageResponse;
 import org.d1ff.messageservice.entity.Message;
 import org.d1ff.messageservice.entity.MessageType;

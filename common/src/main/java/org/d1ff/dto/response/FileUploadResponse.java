@@ -1,4 +1,4 @@
-package org.d1ff.messageservice.dto.response;
+package org.d1ff.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

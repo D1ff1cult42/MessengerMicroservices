@@ -1,4 +1,4 @@
-package org.d1ff.messageservice.exceptions.minio;
+package org.d1ff.exceptions.minio;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

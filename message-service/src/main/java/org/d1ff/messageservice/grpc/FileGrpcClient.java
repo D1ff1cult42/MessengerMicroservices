@@ -6,8 +6,8 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.d1ff.common.grpc.file.*;
-import org.d1ff.messageservice.dto.response.FileUploadResponse;
-import org.d1ff.messageservice.exceptions.minio.FailedToUploadMinio;
+import org.d1ff.dto.response.FileUploadResponse;
+import org.d1ff.exceptions.minio.FailedToUploadMinio;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
