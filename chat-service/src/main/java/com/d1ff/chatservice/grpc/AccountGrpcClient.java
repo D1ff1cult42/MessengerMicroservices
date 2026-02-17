@@ -11,4 +11,8 @@ public class AccountGrpcClient {
     public AccountGrpcResponse getNameAndUserIdAndUserIconByEmail(String email){
         return new AccountGrpcResponse("John Doe", UUID.randomUUID(), "iconObjectName", "bucketName");
     }
+
+    public UUID getUserIdByEmail(String email){
+        return UUID.randomUUID();
+    }
 }
