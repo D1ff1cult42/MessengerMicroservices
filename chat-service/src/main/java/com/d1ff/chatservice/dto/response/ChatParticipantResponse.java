@@ -8,6 +8,5 @@ import java.util.UUID;
 public record ChatParticipantResponse (
         UUID userId,
         ChatRole role,
-        LocalDateTime joinedAt,
-        boolean isMuted
+        LocalDateTime joinedAt
 ){}
