@@ -51,6 +51,10 @@ public class Chat {
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatParticipant> participants = new ArrayList<>();
 
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
     public void addParticipant(UUID userId, ChatRole role) {
         ChatParticipant participant = ChatParticipant.builder()
                 .chat(this)
