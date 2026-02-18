@@ -1,5 +1,6 @@
 package com.d1ff.chatservice.dto.response;
 
+import org.d1ff.page.PageResponse;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,6 @@ public record ChatResponse (
     LocalDateTime createdAt,
     String presignedIconUrl,
     boolean isGroupChat,
-    Page<ChatParticipantResponse> participants
+    PageResponse<ChatParticipantResponse> participants
 ){}
 
