@@ -1,15 +1,14 @@
-package com.d1ff.chatservice.service;
+package com.d1ff.chatservice.service.impl;
 
 import com.d1ff.chatservice.dto.request.CreateChatRequest;
 import com.d1ff.chatservice.dto.request.CreateOneToOneChatRequest;
 import com.d1ff.chatservice.dto.request.UpdateChatRequest;
-import com.d1ff.chatservice.dto.request.UpdateParticipantStatusRequest;
 import com.d1ff.chatservice.dto.response.AccountGrpcResponse;
-import com.d1ff.chatservice.dto.response.ChatParticipantResponse;
 import com.d1ff.chatservice.dto.response.ChatResponse;
 import com.d1ff.chatservice.entity.Chat;
 import com.d1ff.chatservice.entity.ChatParticipant;
 import com.d1ff.chatservice.entity.ChatRole;
+import com.d1ff.chatservice.exceptions.AccessDenied;
 import com.d1ff.chatservice.exceptions.ChatNotFound;
 import com.d1ff.chatservice.exceptions.UserNotFound;
 import com.d1ff.chatservice.grpc.AccountGrpcClient;
@@ -18,10 +17,11 @@ import com.d1ff.chatservice.mapper.response.ChatParticipantResponseMapper;
 import com.d1ff.chatservice.mapper.response.ChatResponseMapper;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
 import com.d1ff.chatservice.repository.ChatRepository;
+import com.d1ff.chatservice.service.interfaces.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.d1ff.bucket.BucketResolver;
 import org.d1ff.dto.response.FileUploadResponse;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChatService {
+public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final ChatParticipantRepository chatParticipantRepository;
     private final AccountGrpcClient accountGrpcClient;
@@ -38,11 +38,11 @@ public class ChatService {
     private final ChatParticipantResponseMapper chatParticipantResponseMapper;
     private final ChatResponseMapper chatResponseMapper;
 
-    @Transactional
-    public ChatResponse createGroupChat(UUID userId, CreateChatRequest createChatRequest) {
+    @Override
+    public ChatResponse createGroupChat(UUID userId, CreateChatRequest createChatRequest, Pageable pageable) {
         Chat chat = new Chat();
 
-        if(createChatRequest.multipartFile() == null){
+        if(createChatRequest.multipartFile() != null){
             FileUploadResponse fileUploadResponse = fileService.uploadFile(
                     bucketResolver.resolveBucket(createChatRequest
                             .multipartFile()
@@ -59,19 +59,18 @@ public class ChatService {
         chat.setDescription(createChatRequest.description());
         chat.setGroupChat(true);
 
-        ChatParticipant creator = ChatParticipant.builder()
-                .chat(chat)
-                .userId(userId)
-                .role(ChatRole.CREATOR)
-                .build();
+        chat.addParticipant(userId, ChatRole.CREATOR);
+
+        chatRepository.save(chat);
 
         return chatResponseMapper.toChatResponse(chat,
+                pageable,
                 chatParticipantResponseMapper,
                 chatParticipantRepository);
     }
 
-    @Transactional
-    public ChatResponse createOneToOneChat(UUID userId, CreateOneToOneChatRequest createOneToOneChatRequest) {
+    @Override
+    public ChatResponse createOneToOneChat(UUID userId, CreateOneToOneChatRequest createOneToOneChatRequest, Pageable pageable) {
         AccountGrpcResponse grpcResponse = accountGrpcClient.getNameAndUserIdAndUserIconByEmail(
                 createOneToOneChatRequest.otherUserEmail());
         if (grpcResponse.userId() == null) {
@@ -85,31 +84,32 @@ public class ChatService {
                 .isGroupChat(false)
                 .build();
 
-        ChatParticipant participant1 = ChatParticipant.builder()
-                .chat(chat)
-                .userId(userId)
-                .role(ChatRole.ADMIN)
-                .build();
+        chat.addParticipant(userId, ChatRole.ADMIN);
+        chat.addParticipant(grpcResponse.userId(), ChatRole.ADMIN);
 
-        ChatParticipant participant2 = ChatParticipant.builder()
-                .chat(chat)
-                .userId(grpcResponse.userId())
-                .role(ChatRole.ADMIN)
-                .build();
+        chatRepository.save(chat);
 
         return chatResponseMapper.toChatResponse(chat,
+                pageable,
                 chatParticipantResponseMapper,
                 chatParticipantRepository);
     }
 
-    @Transactional
-    public ChatResponse addParticipant(UUID chatId, String email){
-        UUID userId = accountGrpcClient.getUserIdByEmail(email);
+    @Override
+    public ChatResponse getChat(UUID chatId, Pageable pageable){
+       Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFound("Chat not found"));
+       if(chat.isDeleted()){
+           throw new ChatNotFound("Chat not found");
+       }
+       return chatResponseMapper.toChatResponse(chat,
+               pageable,
+               chatParticipantResponseMapper,
+               chatParticipantRepository);
+    }
 
-        if(userId == null){
-           throw new UserNotFound("User with email " + email + " not found");
-        }
-
+    @Override
+    public void deleteChat(UUID chatId){
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFound("Chat not found"));
 
@@ -117,59 +117,47 @@ public class ChatService {
             throw new ChatNotFound("Chat not found");
         }
 
-        if(chat.isGroupChat()){
-            throw new ChatNotFound("Chat not found");
-        }
-
-        ChatParticipant participant = ChatParticipant.builder()
-                .chat(chat)
-                .userId(userId)
-                .role(ChatRole.PARTICIPANT)
-                .build();
-        return chatResponseMapper.toChatResponse(chat,
-                chatParticipantResponseMapper,
-                chatParticipantRepository);
-    }
-
-    @Transactional(readOnly = true)
-    public ChatResponse getChat(UUID chatId){
-       Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new ChatNotFound("Chat not found"));
-       if(chat.isDeleted()){
-           throw new ChatNotFound("Chat not found");
-       }
-       return chatResponseMapper.toChatResponse(chat, chatParticipantResponseMapper, chatParticipantRepository);
-    }
-
-    //TODO: агрегированый запрос через gateway чтобы сразу найти по айди юзера
-    @Transactional
-    public ChatParticipantResponse updateUserRole(UpdateParticipantStatusRequest participantStatusRequest){
-        ChatParticipant chatParticipant = chatParticipantRepository.findByUserIdAndChatId(participantStatusRequest.userId()
-                ,participantStatusRequest.chatId());
-
-        if(chatParticipant.getChat().isDeleted()){
-            throw new ChatNotFound("Chat not found");
-        }
-
-        chatParticipant.setRole(participantStatusRequest.newStatus());
-        return chatParticipantResponseMapper
-                .toChatParticipantResponse(chatParticipant);
-    }
-
-    @Transactional
-    public void deleteChat(UUID chatId){
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new ChatNotFound("Chat not found"));
-
         chat.setDeleted(true);
     }
 
-    @Transactional
-    public ChatResponse updateChat(UUID chatId){
-        Chat chat = chatRepository.findById(chatId)
+    @Override
+    public ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID userId, Pageable pageable){
+        ChatParticipant chatParticipant = chatParticipantRepository
+                .findByUserIdAndChatId(userId, updateChatRequest.chatId())
                 .orElseThrow(() -> new ChatNotFound("Chat not found"));
 
-        return null;
-    }
+        if(!chatParticipant.getRole().equals(ChatRole.CREATOR)) {
+            throw new AccessDenied("Access denied! User isn't CREATOR");
+        }
 
+        if(!chatParticipant.getChat().isGroupChat() || chatParticipant.getChat().isDeleted()){
+            throw new ChatNotFound("Chat not found");
+        }
+
+        if (updateChatRequest.multipartFile() != null) {
+            FileUploadResponse fileUploadResponse = fileService.uploadFile(
+                    bucketResolver.resolveBucket(updateChatRequest
+                            .multipartFile()
+                            .getOriginalFilename()), updateChatRequest
+                            .multipartFile());
+
+            chatParticipant.getChat().setIconBucketName(fileUploadResponse.bucketName());
+            chatParticipant.getChat().setIconObjectName(fileUploadResponse.objectName());
+            chatParticipant.getChat().setIconFileSize(updateChatRequest
+                    .multipartFile().getSize());
+        }
+
+        if (updateChatRequest.name() != null) {
+            chatParticipant.getChat().setName(updateChatRequest.name());
+        }
+
+        if (updateChatRequest.description() != null) {
+            chatParticipant.getChat().setDescription(updateChatRequest.description());
+        }
+
+        return chatResponseMapper.toChatResponse(chatParticipant.getChat(),
+                pageable,
+                chatParticipantResponseMapper,
+                chatParticipantRepository);
+    }
 }
