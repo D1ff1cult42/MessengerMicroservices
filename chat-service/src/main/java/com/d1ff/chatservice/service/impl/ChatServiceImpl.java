@@ -132,9 +132,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID userId, Pageable pageable){
+    public ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID chatId, UUID userId, Pageable pageable){
         ChatParticipant chatParticipant = chatParticipantRepository
-                .findByUserIdAndChatId(userId, updateChatRequest.chatId())
+                .findByUserIdAndChatId(userId, chatId)
                 .orElseThrow(() -> new ChatNotFound("Chat not found"));
 
         if(!chatParticipant.getRole().equals(ChatRole.CREATOR)) {

@@ -42,7 +42,7 @@ public class ChatRestController {
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "10") int size){
         Pageable pageable = PageRequest.of(page, size);
-        ChatResponse chat = chatService.updateChat(updateChatRequest, userId, pageable);
+        ChatResponse chat = chatService.updateChat(updateChatRequest, chatId, userId, pageable);
         return ResponseEntity.ok(chat);
     }
 }

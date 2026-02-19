@@ -23,5 +23,5 @@ public interface ChatService {
     void deleteChat(UUID userId, UUID chatId);
 
     @Transactional
-    ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID userId, Pageable pageable);
+    ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID chatId, UUID userId, Pageable pageable);
 }
