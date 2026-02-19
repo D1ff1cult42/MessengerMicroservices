@@ -10,6 +10,7 @@ import com.d1ff.chatservice.entity.ChatParticipant;
 import com.d1ff.chatservice.entity.ChatRole;
 import com.d1ff.chatservice.exceptions.AccessDenied;
 import com.d1ff.chatservice.exceptions.ChatNotFound;
+import com.d1ff.chatservice.exceptions.ParticipantNotFound;
 import com.d1ff.chatservice.exceptions.UserNotFound;
 import com.d1ff.chatservice.grpc.AccountGrpcClient;
 import com.d1ff.chatservice.grpc.FileGrpcClient;
@@ -58,6 +59,7 @@ public class ChatServiceImpl implements ChatService {
         chat.setName(createChatRequest.name());
         chat.setDescription(createChatRequest.description());
         chat.setGroupChat(true);
+        chat.setCreatedBy(userId);
 
         chat.addParticipant(userId, ChatRole.CREATOR);
 
@@ -66,7 +68,8 @@ public class ChatServiceImpl implements ChatService {
         return chatResponseMapper.toChatResponse(chat,
                 pageable,
                 chatParticipantResponseMapper,
-                chatParticipantRepository);
+                chatParticipantRepository,
+                fileService);
     }
 
     @Override
@@ -82,6 +85,7 @@ public class ChatServiceImpl implements ChatService {
                 .iconBucketName(grpcResponse.bucketName())
                 .iconObjectName(grpcResponse.iconObjectName())
                 .isGroupChat(false)
+                .createdBy(userId)
                 .build();
 
         chat.addParticipant(userId, ChatRole.ADMIN);
@@ -92,7 +96,8 @@ public class ChatServiceImpl implements ChatService {
         return chatResponseMapper.toChatResponse(chat,
                 pageable,
                 chatParticipantResponseMapper,
-                chatParticipantRepository);
+                chatParticipantRepository,
+                fileService);
     }
 
     @Override
@@ -105,19 +110,25 @@ public class ChatServiceImpl implements ChatService {
        return chatResponseMapper.toChatResponse(chat,
                pageable,
                chatParticipantResponseMapper,
-               chatParticipantRepository);
+               chatParticipantRepository,
+               fileService);
     }
 
     @Override
-    public void deleteChat(UUID chatId){
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new ChatNotFound("Chat not found"));
+    public void deleteChat(UUID userId, UUID chatId){
 
-        if(chat.isDeleted()){
+        ChatParticipant chatParticipant = chatParticipantRepository.findByUserIdAndChatId(userId, chatId)
+                .orElseThrow(() -> new ParticipantNotFound("Participant isn't in chat"));
+
+        if(!chatParticipant.getRole().equals(ChatRole.CREATOR)){
+            throw new AccessDenied("Not creator can't delete chat!");
+        }
+
+        if(chatParticipant.getChat().isDeleted()){
             throw new ChatNotFound("Chat not found");
         }
 
-        chat.setDeleted(true);
+        chatParticipant.getChat().setDeleted(true);
     }
 
     @Override
@@ -158,6 +169,7 @@ public class ChatServiceImpl implements ChatService {
         return chatResponseMapper.toChatResponse(chatParticipant.getChat(),
                 pageable,
                 chatParticipantResponseMapper,
-                chatParticipantRepository);
+                chatParticipantRepository,
+                fileService);
     }
 }

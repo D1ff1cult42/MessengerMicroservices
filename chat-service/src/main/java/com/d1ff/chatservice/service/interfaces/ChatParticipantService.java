@@ -1,5 +1,6 @@
 package com.d1ff.chatservice.service.interfaces;
 
+import com.d1ff.chatservice.dto.request.AddParticipantRequest;
 import com.d1ff.chatservice.dto.request.KickParticipantRequest;
 import com.d1ff.chatservice.dto.request.UpdateParticipantStatusRequest;
 import com.d1ff.chatservice.dto.response.ChatParticipantResponse;
@@ -15,7 +16,7 @@ public interface ChatParticipantService {
     ChatParticipantResponse updateUserRole(UpdateParticipantStatusRequest participantStatusRequest, UUID userId);
 
     @Transactional
-    ChatResponse addParticipant(UUID chatId, String email, Pageable pageable);
+    ChatResponse addParticipant(UUID initiatorId, UUID chatId, AddParticipantRequest addParticipantRequest, Pageable pageable);
 
     @Transactional
     void kickParticipant(UUID userId, KickParticipantRequest kickParticipantRequest);

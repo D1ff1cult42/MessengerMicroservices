@@ -20,7 +20,7 @@ public interface ChatService {
     ChatResponse getChat(UUID chatId, Pageable pageable);
 
     @Transactional
-    void deleteChat(UUID chatId);
+    void deleteChat(UUID userId, UUID chatId);
 
     @Transactional
     ChatResponse updateChat(UpdateChatRequest updateChatRequest, UUID userId, Pageable pageable);
