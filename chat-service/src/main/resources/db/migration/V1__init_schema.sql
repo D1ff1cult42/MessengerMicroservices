@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS chats (
     icon_updated_at TIMESTAMP,
     description TEXT,
     is_group_chat BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
