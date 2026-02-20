@@ -21,4 +21,10 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
 
     @Query("SELECT cp FROM ChatParticipant cp LEFT JOIN FETCH cp.chat c WHERE c.id = :chatId AND cp.userId IN :userIds")
     List<ChatParticipant> findAllByUserIdsAndChatId(@Param("userIds") List<UUID> userIds, @Param("chatId") UUID chatId);
+
+    @Query("SELECT cp.userId FROM ChatParticipant cp WHERE cp.chat.id = :chatId")
+    List<UUID> findUserIdsByChatId(@Param("chatId") UUID chatId);
+
+    @Query("SELECT cp FROM ChatParticipant cp JOIN FETCH cp.chat WHERE cp.chat.id = :chatId")
+    Optional<ChatParticipant> findFirstByChatId(@Param("chatId") UUID chatId);
 }
