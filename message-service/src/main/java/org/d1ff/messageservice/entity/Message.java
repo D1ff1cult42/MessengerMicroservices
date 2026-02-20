@@ -35,7 +35,7 @@ public class Message {
     @Column(name = "bucket_name")
     private String bucketName;
 
-    @Column(name = "file_url")
+    @Column(name = "object_name")
     private String objectName;
 
     @Column(name = "file_name")
