@@ -16,7 +16,8 @@ import java.util.UUID;
        uniqueConstraints = @UniqueConstraint(columnNames = {"message_id", "user_id"}))
 public class MessageStatus {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_status_seq")
+    @SequenceGenerator(name = "message_status_seq", sequenceName = "message_statuses_id_seq", allocationSize = 50)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

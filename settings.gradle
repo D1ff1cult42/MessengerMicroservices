@@ -1,3 +1,3 @@
 rootProject.name = 'Messenger'
 
-include 'auth-service','common', 'message-service', 'api-gateway', 'file-service'
+include 'auth-service','common', 'message-service', 'api-gateway', 'file-service', 'chat-service'

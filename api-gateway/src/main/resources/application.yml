@@ -45,6 +45,16 @@ spring:
                     id: fileCircuitBreaker
                     fallbackUri: forward:/fallback/file-service
 
+            - id: chat-service
+              uri: http://chat-service:8084
+              predicates:
+                - Path=/api/chats/**,/api/chat-participants/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: chatCircuitBreaker
+                    fallbackUri: forward:/fallback/chat-service
+
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
 
@@ -78,6 +88,13 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+      chatCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
       authCircuitBreaker:
@@ -86,3 +103,5 @@ resilience4j:
         timeoutDuration: 5s
       fileCircuitBreaker:
         timeoutDuration: 10s
+      chatCircuitBreaker:
+        timeoutDuration: 5s

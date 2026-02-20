@@ -38,6 +38,8 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       FILE_SERVICE_GRPC_HOST: file-service
       FILE_SERVICE_GRPC_PORT: 9091
+      CHAT_SERVICE_GRPC_HOST: chat-service
+      CHAT_SERVICE_GRPC_PORT: 9092
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,10 +47,41 @@ services:
         condition: service_healthy
       file-service:
         condition: service_healthy
+      chat-service:
+        condition: service_healthy
     networks:
       - messenger-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  chat-service:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    container_name: messenger-chat-service
+    ports:
+      - "8084:8084"
+      - "9092:9092"
+    environment:
+      CHAT_DATASOURCE_URL: ${CHAT_DATASOURCE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      FILE_SERVICE_GRPC_HOST: file-service
+      FILE_SERVICE_GRPC_PORT: 9091
+    depends_on:
+      postgres:
+        condition: service_healthy
+      file-service:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5

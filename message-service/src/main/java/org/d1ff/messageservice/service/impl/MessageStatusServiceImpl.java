@@ -47,14 +47,23 @@ public class MessageStatusServiceImpl implements MessageStatusService {
         UUID authorId = message.getFromUser();
         log.info("Initializing message statuses for new message with id: {} from user: {}", message.getId(), authorId);
         List<UUID> users = chatGrpcClient.getChatParticipants(message.getChatId());
+        users = new java.util.ArrayList<>(users);
         users.remove(authorId);
-        for(UUID userId : users){
-            MessageStatus messageStatus = MessageStatus.builder()
-                    .message(message)
-                    .userId(userId)
-                    .build();
-            messageStatusRepository.save(messageStatus);
+
+        if (users.isEmpty()) {
+            log.warn("No other participants in chat {} to create statuses for", message.getChatId());
+            return;
         }
+
+        List<MessageStatus> statuses = users.stream()
+                .map(userId -> MessageStatus.builder()
+                        .message(message)
+                        .userId(userId)
+                        .build())
+                .toList();
+
+        messageStatusRepository.saveAll(statuses);
+        log.info("Batch inserted {} message statuses for message {}", statuses.size(), message.getId());
     }
 
     //FOR RECIPIENT

@@ -2,7 +2,7 @@ package org.d1ff.messageservice.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.d1ff.dto.response.ErrorResponse;
-import org.d1ff.messageservice.exceptions.minio.FailedToUploadMinio;
+import org.d1ff.exceptions.minio.FailedToUploadMinio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
