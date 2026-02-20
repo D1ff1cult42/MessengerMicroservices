@@ -3,6 +3,9 @@ grpc:
     file-service:
       address: static://${FILE_SERVICE_GRPC_HOST:file-service}:${FILE_SERVICE_GRPC_PORT:9091}
       negotiation-type: plaintext
+    chat-service:
+      address: static://${CHAT_SERVICE_GRPC_HOST:chat-service}:${CHAT_SERVICE_GRPC_PORT:9092}
+      negotiation-type: plaintext
 
 bucket-resolver:
   buckets:
@@ -35,6 +38,9 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
   flyway:
     enabled: true
     baseline-on-migrate: true
