@@ -1,4 +1,6 @@
 grpc:
+  server:
+    port: 9092
   client:
     file-service:
       address: static://${FILE_SERVICE_GRPC_HOST:file-service}:${FILE_SERVICE_GRPC_PORT:9091}
