@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.d1ff.common.grpc.file";
+option java_outer_classname = "ChatServiceProto";
+
+package chat;
+
+service ChatGrpcService{
+    rpc isUserExistsInChat(IsUserExistsInChatRequest) returns (IsUserExistsInChatResponse);
+
+    rpc getChatParticipants(GetChatParticipantsRequest) returns (GetChatParticipantsResponse);
+}
+
+message IsUserExistsInChatRequest{
+    string userId = 1;
+    string chatId = 2;
+}
+
+message IsUserExistsInChatResponse{
+    bool userIsExists = 1;
+}
+
+message GetChatParticipantsRequest{
+    string chatId = 1;
+}
+
+message GetChatParticipantsResponse{
+    repeated string ids = 1;
+}
