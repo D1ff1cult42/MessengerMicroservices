@@ -38,12 +38,16 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       FILE_SERVICE_GRPC_HOST: file-service
       FILE_SERVICE_GRPC_PORT: 9091
+      CHAT_SERVICE_GRPC_HOST: chat-service
+      CHAT_SERVICE_GRPC_PORT: 9092
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
       file-service:
+        condition: service_healthy
+      chat-service:
         condition: service_healthy
     networks:
       - messenger-network
@@ -62,6 +66,7 @@ services:
     container_name: messenger-chat-service
     ports:
       - "8084:8084"
+      - "9092:9092"
     environment:
       CHAT_DATASOURCE_URL: ${CHAT_DATASOURCE_URL}
       DATABASE_USERNAME: ${POSTGRES_USER}
