@@ -1,5 +1,6 @@
 package com.d1ff.fileservice.grpc;
 
+import com.d1ff.common.grpc.file.*;
 import com.d1ff.fileservice.config.MinioProperties;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -8,7 +9,6 @@ import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.d1ff.common.grpc.file.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

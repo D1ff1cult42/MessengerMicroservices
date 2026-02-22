@@ -2,8 +2,8 @@ package com.d1ff.chatservice.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.d1ff.dto.response.ErrorResponse;
-import org.d1ff.exceptions.minio.FailedToUploadMinio;
+import com.d1ff.dto.response.ErrorResponse;
+import com.d1ff.exceptions.minio.FailedToUploadMinio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;

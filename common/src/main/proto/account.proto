@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.d1ff.common.grpc.account";
+option java_outer_classname = "AccountServiceProto";
+
+package account;
+
+service AccountGrpcService {
+  rpc GetAccountByEmail(GetAccountByEmailRequest) returns (GetAccountByEmailResponse);
+}
+
+message GetAccountByEmailRequest {
+  string email = 1;
+}
+
+message GetAccountByEmailResponse {
+  string user_id = 1;
+  string username = 2;
+  string avatar_object_name = 3;
+  string avatar_bucket_name = 4;
+}

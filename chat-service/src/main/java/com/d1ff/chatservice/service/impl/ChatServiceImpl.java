@@ -13,7 +13,7 @@ import com.d1ff.chatservice.exceptions.ChatNotFound;
 import com.d1ff.chatservice.exceptions.ParticipantNotFound;
 import com.d1ff.chatservice.exceptions.UserNotFound;
 import com.d1ff.chatservice.grpc.AccountGrpcClient;
-import org.d1ff.grpc.client.FileGrpcClient;
+import com.d1ff.grpc.client.FileGrpcClient;
 import com.d1ff.chatservice.mapper.response.ChatParticipantResponseMapper;
 import com.d1ff.chatservice.mapper.response.ChatResponseMapper;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
@@ -21,11 +21,10 @@ import com.d1ff.chatservice.repository.ChatRepository;
 import com.d1ff.chatservice.service.interfaces.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.d1ff.bucket.BucketResolver;
-import org.d1ff.dto.response.FileUploadResponse;
+import com.d1ff.bucket.BucketResolver;
+import com.d1ff.dto.response.FileUploadResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 

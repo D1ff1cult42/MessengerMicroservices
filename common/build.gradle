@@ -3,7 +3,7 @@ plugins {
     id "com.google.protobuf" version "0.9.4"
 }
 
-group = 'org.d1ff'
+group = 'com.d1ff'
 version = '0.0.1-SNAPSHOT'
 
 repositories {

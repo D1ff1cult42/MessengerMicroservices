@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.d1ff.common.grpc.file";
+option java_package = "com.d1ff.common.grpc.chat";
 option java_outer_classname = "ChatServiceProto";
 
 package chat;

@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication(scanBasePackages = {"com.d1ff.chatservice", "org.d1ff.bucket"})
+@SpringBootApplication(scanBasePackages = {"com.d1ff.chatservice", "com.d1ff.bucket"})
 @EnableConfigurationProperties
 public class ChatServiceApplication {
 

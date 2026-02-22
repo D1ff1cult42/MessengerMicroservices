@@ -1,7 +1,7 @@
 package com.d1ff.chatservice.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.d1ff.page.PageResponse;
+import com.d1ff.page.PageResponse;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

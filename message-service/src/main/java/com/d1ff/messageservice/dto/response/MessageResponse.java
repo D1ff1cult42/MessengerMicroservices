@@ -1,0 +1,24 @@
+package com.d1ff.messageservice.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.d1ff.messageservice.entity.MessageType;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record MessageResponse(Long id,
+                              UUID chatId,
+                              UUID fromUser,
+                              String content,
+                              MessageType type,
+                              String fileUrl,
+                              Long fileUrlTtl,
+                              String fileName,
+                              Long fileSize,
+                              LocalDateTime createdAt,
+                              LocalDateTime updatedAt,
+                              LocalDateTime deletedAt,
+                              Boolean isEdited,
+                              Long replyTo
+                              ) {}
+

@@ -2,12 +2,12 @@ package com.d1ff.chatservice.grpc;
 
 import com.d1ff.chatservice.entity.ChatParticipant;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
+import com.d1ff.common.grpc.chat.*;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.d1ff.common.grpc.file.*;
 
 import java.util.List;
 import java.util.UUID;
