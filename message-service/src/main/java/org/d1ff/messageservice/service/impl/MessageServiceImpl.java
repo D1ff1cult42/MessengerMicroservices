@@ -11,7 +11,7 @@ import org.d1ff.messageservice.entity.MessageType;
 import org.d1ff.messageservice.exceptions.AccessDeniedException;
 import org.d1ff.messageservice.exceptions.MessageNotFound;
 import org.d1ff.messageservice.grpc.ChatGrpcClient;
-import org.d1ff.messageservice.grpc.FileGrpcClient;
+import org.d1ff.grpc.client.FileGrpcClient;
 import org.d1ff.messageservice.mapper.response.MessageResponseMapper;
 import org.d1ff.messageservice.repository.MessageRepository;
 import org.d1ff.messageservice.service.interfaces.MessageService;

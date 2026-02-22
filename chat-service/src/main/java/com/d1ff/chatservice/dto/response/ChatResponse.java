@@ -23,6 +23,9 @@ public record ChatResponse (
     @Schema(description = "Presigned URL of the chat icon")
     String presignedIconUrl,
 
+    @Schema(description = "TTL of the presigned icon URL in seconds", example = "3600")
+    Long iconUrlTtl,
+
     @Schema(description = "Whether the chat is a group chat", example = "true")
     boolean isGroupChat,
 

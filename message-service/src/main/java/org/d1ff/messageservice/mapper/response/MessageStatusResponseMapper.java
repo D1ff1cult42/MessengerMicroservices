@@ -3,7 +3,7 @@ package org.d1ff.messageservice.mapper.response;
 import org.d1ff.messageservice.dto.response.MessageStatusResponse;
 import org.d1ff.messageservice.dto.response.MessageStatusWithoutMessageResponse;
 import org.d1ff.messageservice.entity.MessageStatus;
-import org.d1ff.messageservice.grpc.FileGrpcClient;
+import org.d1ff.grpc.client.FileGrpcClient;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

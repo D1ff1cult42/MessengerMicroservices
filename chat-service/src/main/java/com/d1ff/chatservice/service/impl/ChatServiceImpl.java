@@ -13,7 +13,7 @@ import com.d1ff.chatservice.exceptions.ChatNotFound;
 import com.d1ff.chatservice.exceptions.ParticipantNotFound;
 import com.d1ff.chatservice.exceptions.UserNotFound;
 import com.d1ff.chatservice.grpc.AccountGrpcClient;
-import com.d1ff.chatservice.grpc.FileGrpcClient;
+import org.d1ff.grpc.client.FileGrpcClient;
 import com.d1ff.chatservice.mapper.response.ChatParticipantResponseMapper;
 import com.d1ff.chatservice.mapper.response.ChatResponseMapper;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;

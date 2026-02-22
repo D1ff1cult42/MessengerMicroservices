@@ -9,7 +9,7 @@ import org.d1ff.messageservice.entity.Message;
 import org.d1ff.messageservice.entity.MessageStatus;
 import org.d1ff.messageservice.exceptions.MessageNotFound;
 import org.d1ff.messageservice.grpc.ChatGrpcClient;
-import org.d1ff.messageservice.grpc.FileGrpcClient;
+import org.d1ff.grpc.client.FileGrpcClient;
 import org.d1ff.messageservice.mapper.response.MessageResponseMapper;
 import org.d1ff.messageservice.mapper.response.MessageStatusResponseMapper;
 import org.d1ff.messageservice.repository.MessageStatusRepository;

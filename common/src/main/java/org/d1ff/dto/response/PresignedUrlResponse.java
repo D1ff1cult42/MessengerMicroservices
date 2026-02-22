@@ -1,0 +1,9 @@
+package org.d1ff.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record PresignedUrlResponse(
+        String url,
+        long ttl
+) {}

@@ -1,21 +1,26 @@
-package org.d1ff.messageservice.grpc;
+package org.d1ff.grpc.client;
 
 import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.d1ff.common.grpc.file.*;
+import org.d1ff.common.grpc.file.FileChunk;
+import org.d1ff.common.grpc.file.FileGrpcServiceGrpc;
+import org.d1ff.common.grpc.file.FileMetadata;
+import org.d1ff.common.grpc.file.GetPresignedUrlRequest;
+import org.d1ff.common.grpc.file.GetPresignedUrlResponse;
+import org.d1ff.common.grpc.file.UploadFileRequest;
+import org.d1ff.common.grpc.file.UploadFileResponse;
 import org.d1ff.dto.response.FileUploadResponse;
+import org.d1ff.dto.response.PresignedUrlResponse;
 import org.d1ff.exceptions.minio.FailedToUploadMinio;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Component
 @Slf4j
 public class FileGrpcClient {
 
@@ -100,7 +105,7 @@ public class FileGrpcClient {
         }
     }
 
-    public String getPresignedUrl(String bucketName, String objectName) {
+    public PresignedUrlResponse getPresignedUrl(String bucketName, String objectName) {
         try {
             GetPresignedUrlRequest request = GetPresignedUrlRequest.newBuilder()
                     .setBucketName(bucketName)
@@ -108,7 +113,7 @@ public class FileGrpcClient {
                     .build();
 
             GetPresignedUrlResponse response = blockingStub.getPresignedUrl(request);
-            return response.getUrl();
+            return new PresignedUrlResponse(response.getUrl(), response.getExpiresInSeconds());
         } catch (StatusRuntimeException e) {
             log.error("Failed to get presigned URL via gRPC for {}/{}: {}", bucketName, objectName, e.getStatus());
             return null;

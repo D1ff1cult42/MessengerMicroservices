@@ -16,6 +16,7 @@ java {
     }
 }
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.2')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -24,7 +25,9 @@ dependencies {
     implementation("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 
-    implementation 'org.springframework.boot:spring-boot-autoconfigure:3.4.3'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-web'
+    implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     implementation 'org.slf4j:slf4j-api:2.0.16'

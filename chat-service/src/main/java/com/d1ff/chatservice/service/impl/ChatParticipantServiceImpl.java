@@ -9,7 +9,7 @@ import com.d1ff.chatservice.entity.ChatParticipant;
 import com.d1ff.chatservice.entity.ChatRole;
 import com.d1ff.chatservice.exceptions.*;
 import com.d1ff.chatservice.grpc.AccountGrpcClient;
-import com.d1ff.chatservice.grpc.FileGrpcClient;
+import org.d1ff.grpc.client.FileGrpcClient;
 import com.d1ff.chatservice.mapper.response.ChatParticipantResponseMapper;
 import com.d1ff.chatservice.mapper.response.ChatResponseMapper;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
