@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
         nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE
 )
 public interface MessageStatusResponseMapper {
+    @Mapping(source = "readAt", target = "date")
     @Mapping(target = "message", expression = "java(messageResponseMapper.toMessageResponseWithUrl(messageStatus.getMessage(), fileService))")
     MessageStatusResponse toMessageStatusResponse(
             MessageStatus messageStatus,
@@ -19,9 +20,11 @@ public interface MessageStatusResponseMapper {
             @Context FileGrpcClient fileService
     );
 
+    @Mapping(source = "readAt", target = "date")
     @Mapping(target = "message", expression = "java(status.getMessage().getId())")
     MessageStatusWithoutMessageResponse toMessageStatusResponseWithoutMessage(MessageStatus status);
 
+    @Mapping(source = "readAt", target = "date")
     @Mapping(target = "message", expression = "java(messageResponseMapper.toMessageResponse(messageStatus.getMessage()))")
     MessageStatusResponse toMessageStatusResponseWithoutUrl(
             MessageStatus messageStatus,
