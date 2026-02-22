@@ -63,7 +63,7 @@ public class AuthController {
                 )
             }
     )
-    @PostMapping("/register")
+    @PostMapping("/register/multi_step")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         log.info("Received registration request for email: {}", request.email());
         AuthResponse response = authServiceImpl.register(request);
