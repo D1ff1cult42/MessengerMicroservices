@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse getAccount(UUID userId, String email) {
         Account account = getOrCreateAccount(userId, email);
+        log.info("Getting account for user {}", userId);
         return accountResponseMapper.toResponse(account, fileService);
     }
 
@@ -90,6 +91,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponse getAccountByEmail(GetAccountByEmailRequest request) {
         Account account = accountRepository.findByEmail(request.email())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found for email: " + request.email()));
+        log.info("Getting account for user {}", account.getUserId());
         return accountResponseMapper.toResponse(account, fileService);
     }
 
