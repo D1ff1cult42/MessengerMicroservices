@@ -12,6 +12,7 @@ grpc:
       negotiation-type: plaintext
 
 bucket-resolver:
+  enabled: true
   buckets:
     account-avatar:
       extensions: jpg, jpeg, png, gif, bmp, webp, svg
