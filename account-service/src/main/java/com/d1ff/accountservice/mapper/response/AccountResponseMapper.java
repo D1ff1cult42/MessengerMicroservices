@@ -18,6 +18,7 @@ public interface AccountResponseMapper {
         }
 
         return new AccountResponse(
+                account.getUserId(),
                 account.getEmail(),
                 account.getUsername(),
                 account.getDescription(),

@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "AccountResponse", description = "Account profile information")
 public record AccountResponse(
+        @Schema(description = "Unique identifier of the user", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID userId,
         @Schema(description = "Email address of the account owner", example = "user@example.com")
         String email,
         @Schema(description = "Display username", example = "john_doe")
