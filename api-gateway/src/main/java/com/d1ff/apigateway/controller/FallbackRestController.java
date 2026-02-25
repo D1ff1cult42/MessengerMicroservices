@@ -32,4 +32,10 @@ public class FallbackRestController {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body("Chat service is currently unavailable. Please try again later.");
     }
+
+    @GetMapping("/account-service")
+    public ResponseEntity<?> accountServiceFallback(){
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Account service is currently unavailable. Please try again later.");
+    }
 }

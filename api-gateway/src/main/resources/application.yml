@@ -28,7 +28,7 @@ spring:
             - id: message-service
               uri: http://message-service:8082
               predicates:
-                - Path=/api/messages/**
+                - Path=/api/messages/**,/api/message-status/**,/api/message-statuses/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -54,6 +54,16 @@ spring:
                   args:
                     id: chatCircuitBreaker
                     fallbackUri: forward:/fallback/chat-service
+
+            - id: account-service
+              uri: http://account-service:8085
+              predicates:
+                - Path=/api/my_account/**,/api/accounts/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: accountCircuitBreaker
+                    fallbackUri: forward:/fallback/account-service
 
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
@@ -95,6 +105,15 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+      accountCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+
   timelimiter:
     instances:
       authCircuitBreaker:
@@ -104,4 +123,6 @@ resilience4j:
       fileCircuitBreaker:
         timeoutDuration: 10s
       chatCircuitBreaker:
+        timeoutDuration: 5s
+      accountCircuitBreaker:
         timeoutDuration: 5s
