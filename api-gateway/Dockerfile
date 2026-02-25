@@ -6,6 +6,12 @@ WORKDIR /app
 
 COPY build/libs/*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", \
+  "-XX:+UseSerialGC", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:+TieredCompilation", \
+  "-XX:TieredStopAtLevel=1", \
+  "-Xss256k", \
+  "-jar", "app.jar"]
 
 EXPOSE 8080

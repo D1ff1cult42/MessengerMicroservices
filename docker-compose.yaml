@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.8" 
 services:
   api-gateway:
     build:
@@ -17,6 +17,10 @@ services:
         condition: service_healthy
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -51,6 +55,10 @@ services:
         condition: service_healthy
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
       interval: 30s
@@ -73,13 +81,21 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       FILE_SERVICE_GRPC_HOST: file-service
       FILE_SERVICE_GRPC_PORT: 9091
+      ACCOUNT_SERVICE_GRPC_HOST: account-service
+      ACCOUNT_SERVICE_GRPC_PORT: 9092
     depends_on:
       postgres:
         condition: service_healthy
       file-service:
         condition: service_healthy
+      account-service:
+        condition: service_healthy
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
       interval: 30s
@@ -105,6 +121,10 @@ services:
         condition: service_healthy
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
       interval: 30s
@@ -114,13 +134,17 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: messenger-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 64mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 96M
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -139,6 +163,10 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -147,20 +175,30 @@ services:
       start_period: 40s
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: messenger-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    command: >
+      postgres
+        -c shared_buffers=64MB
+        -c work_mem=4MB
+        -c maintenance_work_mem=32MB
+        -c effective_cache_size=128MB
+        -c max_connections=50
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
-
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -187,8 +225,43 @@ services:
         condition: service_healthy
     networks:
       - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    container_name: messenger-account-service
+    ports:
+      - "8085:8085"
+      - "9093:9092"
+    environment:
+      ACCOUNT_DATASOURCE_URL: ${ACCOUNT_DATASOURCE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5

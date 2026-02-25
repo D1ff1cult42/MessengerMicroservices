@@ -14,4 +14,4 @@ ENTRYPOINT ["java", \
   "-Xss256k", \
   "-jar", "app.jar"]
 
-EXPOSE 8081
+EXPOSE 8085 9092
