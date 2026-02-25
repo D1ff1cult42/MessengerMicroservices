@@ -14,6 +14,7 @@ import java.util.UUID;
 @Repository
 public interface ChatParticipantRepository extends JpaRepository<ChatParticipant, UUID> {
     //  !!! DON'T FORGET DONT USE CHAT FIELD, IT CAUSED N+1 PROBLEM, ONLY FOR MAPPINGS !!!
+
     Page<ChatParticipant> findByChatId(UUID chatId, Pageable pageable);
 
     @Query("SELECT cp FROM ChatParticipant cp LEFT JOIN FETCH cp.chat c WHERE c.id = :chatId AND cp.userId = :userId")
@@ -25,6 +26,7 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
     @Query("SELECT cp.userId FROM ChatParticipant cp WHERE cp.chat.id = :chatId")
     List<UUID> findUserIdsByChatId(@Param("chatId") UUID chatId);
 
-    @Query("SELECT cp FROM ChatParticipant cp JOIN FETCH cp.chat WHERE cp.chat.id = :chatId")
-    Optional<ChatParticipant> findFirstByChatId(@Param("chatId") UUID chatId);
+    @Query("SELECT cp FROM ChatParticipant cp JOIN FETCH cp.chat WHERE cp.chat.id = :chatId ORDER BY cp.userId")
+    List<ChatParticipant> findAllByChatIdWithChat(@Param("chatId") UUID chatId);
 }
+

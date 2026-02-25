@@ -7,8 +7,12 @@ grpc:
     file-service:
       address: static://${FILE_SERVICE_GRPC_HOST:file-service}:${FILE_SERVICE_GRPC_PORT:9091}
       negotiation-type: plaintext
+    account-service:
+      address: static://${ACCOUNT_SERVICE_GRPC_HOST:account-service}:${ACCOUNT_SERVICE_GRPC_PORT:9092}
+      negotiation-type: plaintext
 
 bucket-resolver:
+  enabled: true
   buckets:
     chat-icon:
       extensions: jpg, jpeg, png, gif, bmp, webp, svg

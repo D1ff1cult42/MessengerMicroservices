@@ -62,7 +62,7 @@ public class ChatsRestController {
             @Parameter(description = "ID of the user creating the chat(FOR DEBUG ONLY, THIS PARAMETER IS TAKEN FROM API-GATEWAY)", required = true)
             @RequestHeader("X-User-Id") UUID userId,
             @Parameter(description = "Group chat creation data", required = true)
-            @RequestBody @Valid CreateChatRequest createChatRequest,
+            @ModelAttribute @Valid CreateChatRequest createChatRequest,
             @Parameter(description = "Page number for participants pagination")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size for participants pagination")

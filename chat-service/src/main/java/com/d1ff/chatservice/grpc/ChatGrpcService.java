@@ -1,7 +1,9 @@
 package com.d1ff.chatservice.grpc;
 
+import com.d1ff.chatservice.entity.Chat;
 import com.d1ff.chatservice.entity.ChatParticipant;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
+import com.d1ff.chatservice.repository.ChatRepository;
 import com.d1ff.common.grpc.chat.*;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class ChatGrpcService extends ChatGrpcServiceGrpc.ChatGrpcServiceImplBase {
 
     private final ChatParticipantRepository chatParticipantRepository;
+    private final ChatRepository chatRepository;
 
     @Override
     public void isUserExistsInChat(IsUserExistsInChatRequest request, StreamObserver<IsUserExistsInChatResponse> observer) {
@@ -76,17 +79,9 @@ public class ChatGrpcService extends ChatGrpcServiceGrpc.ChatGrpcServiceImplBase
 
             UUID chatId = UUID.fromString(request.getChatId());
 
-            ChatParticipant anyParticipant = chatParticipantRepository.findFirstByChatId(chatId)
-                    .orElse(null);
+            Chat chat = chatRepository.findById(chatId).orElse(null);
 
-            if (anyParticipant == null) {
-                observer.onError(Status.NOT_FOUND
-                        .withDescription("Chat not found: " + chatId)
-                        .asRuntimeException());
-                return;
-            }
-
-            if (anyParticipant.getChat().isDeleted()) {
+            if (chat == null || chat.isDeleted()) {
                 observer.onError(Status.NOT_FOUND
                         .withDescription("Chat not found: " + chatId)
                         .asRuntimeException());
@@ -94,6 +89,13 @@ public class ChatGrpcService extends ChatGrpcServiceGrpc.ChatGrpcServiceImplBase
             }
 
             List<UUID> userIds = chatParticipantRepository.findUserIdsByChatId(chatId);
+
+            if (userIds.isEmpty()) {
+                observer.onError(Status.NOT_FOUND
+                        .withDescription("No participants found for chat: " + chatId)
+                        .asRuntimeException());
+                return;
+            }
 
             GetChatParticipantsResponse response = GetChatParticipantsResponse.newBuilder()
                     .addAllIds(userIds.stream().map(UUID::toString).toList())

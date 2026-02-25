@@ -163,7 +163,7 @@ public class ChatRestController {
             @Parameter(description = "ID of the user making the request(FOR DEBUG ONLY, THIS PARAMETER IS TAKEN FROM API-GATEWAY)", required = true)
             @RequestHeader("X-User-Id") UUID userId,
             @Parameter(description = "Chat update data", required = true)
-            @RequestBody @Valid UpdateChatRequest updateChatRequest,
+            @ModelAttribute @Valid UpdateChatRequest updateChatRequest,
             @Parameter(description = "Page number for participants pagination")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size for participants pagination")
