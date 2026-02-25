@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "bucket-resolver", name = "buckets")
+@ConditionalOnProperty(prefix = "bucket-resolver", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(BucketResolverProperties.class)
 public class BucketResolverAutoConfiguration {
 
