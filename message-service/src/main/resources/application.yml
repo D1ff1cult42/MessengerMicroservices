@@ -10,6 +10,7 @@ grpc:
       negotiation-type: plaintext
 
 bucket-resolver:
+  enabled: true
   buckets:
     message-image:
       extensions: jpg, jpeg, png, gif, bmp, webp, svg
