@@ -27,6 +27,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:4.0.2'
     implementation 'io.github.springwolf:springwolf-stomp:2.1.0'
     runtimeOnly 'io.github.springwolf:springwolf-ui:2.1.0'
     compileOnly 'org.projectlombok:lombok'
