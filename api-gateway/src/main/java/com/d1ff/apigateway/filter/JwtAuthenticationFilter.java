@@ -1,52 +1,56 @@
 package com.d1ff.apigateway.filter;
 
+import com.d1ff.apigateway.service.interfaces.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.d1ff.apigateway.service.interfaces.JwtService;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtService jwtService;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    private static final List<String> OPEN_PATHS = List.of(
+            "/actuator", "/api/auth", "/swagger", "/fallback", "/health", "/springwolf"
+    );
 
-        String path = request.getRequestURI();
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
         log.debug("Processing request for path: {}", path);
 
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (OPEN_PATHS.stream().anyMatch(path::startsWith)) {
+            return chain.filter(exchange);
+        }
+
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.debug("No Bearer token found for path: {}, passing to next filter", path);
-            filterChain.doFilter(request, response);
-            return;
+            return chain.filter(exchange);
         }
 
         String token = authHeader.substring(7);
 
         if (!jwtService.validateToken(token)) {
             log.warn("Invalid JWT token for path: {}", path);
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
-            return;
+            return unauthorizedResponse(exchange, "Invalid or expired token");
         }
 
         try {
@@ -54,63 +58,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String email = jwtService.getEmail(token);
             String role = jwtService.getRole(token);
 
-            HeaderMapRequestWrapper wrappedRequest = new HeaderMapRequestWrapper(request);
-            wrappedRequest.addHeader("X-User-Id", userId != null ? userId : "");
-            wrappedRequest.addHeader("X-User-Email", email != null ? email : "");
-            wrappedRequest.addHeader("X-User-Role", role != null ? role : "");
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    email, null, List.of(new SimpleGrantedAuthority("ROLE_" + (role != null ? role : "USER")))
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                    .header("X-User-Id", userId != null ? userId : "")
+                    .header("X-User-Email", email != null ? email : "")
+                    .header("X-User-Role", role != null ? role : "")
+                    .build();
 
             log.debug("JWT validated successfully for user: {} (ID: {})", email, userId);
 
-            filterChain.doFilter(wrappedRequest, response);
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } catch (Exception e) {
             log.error("Error extracting user info from token: {}", e.getMessage());
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Failed to extract user information\"}");
+            return unauthorizedResponse(exchange, "Failed to extract user information");
         }
     }
 
-    private static class HeaderMapRequestWrapper extends HttpServletRequestWrapper {
-        private final Map<String, String> headerMap = new HashMap<>();
+    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        byte[] bytes = ("{\"error\": \"" + message + "\"}").getBytes(StandardCharsets.UTF_8);
+        DataBuffer buffer = response.bufferFactory().wrap(bytes);
+        return response.writeWith(Mono.just(buffer));
+    }
 
-        public HeaderMapRequestWrapper(HttpServletRequest request) {
-            super(request);
-        }
-
-        public void addHeader(String name, String value) {
-            headerMap.put(name, value);
-        }
-
-        @Override
-        public String getHeader(String name) {
-            String headerValue = headerMap.get(name);
-            if (headerValue != null) {
-                return headerValue;
-            }
-            return super.getHeader(name);
-        }
-
-        @Override
-        public Enumeration<String> getHeaderNames() {
-            List<String> names = Collections.list(super.getHeaderNames());
-            names.addAll(headerMap.keySet());
-            return Collections.enumeration(names);
-        }
-
-        @Override
-        public Enumeration<String> getHeaders(String name) {
-            List<String> values = Collections.list(super.getHeaders(name));
-            String headerValue = headerMap.get(name);
-            if (headerValue != null) {
-                values.add(headerValue);
-            }
-            return Collections.enumeration(values);
-        }
+    @Override
+    public int getOrder() {
+        return -1;
     }
 }
 

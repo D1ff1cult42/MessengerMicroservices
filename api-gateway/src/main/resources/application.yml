@@ -13,16 +13,22 @@ spring:
   cloud:
     gateway:
       server:
-        webmvc:
+        webflux:
           routes:
             - id: auth-service
               uri: http://auth-service:8081
               predicates:
                 - Path=/api/auth/**
               filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@ipKeyResolver}"
                 - name: CircuitBreaker
                   args:
-                    id: authCircuitBreaker
+                    name: authCircuitBreaker
                     fallbackUri: forward:/fallback/auth-service
 
             - id: message-service
@@ -32,7 +38,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    id: messageCircuitBreaker
+                    name: messageCircuitBreaker
                     fallbackUri: forward:/fallback/message-service
 
             - id: file-service
@@ -42,7 +48,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    id: fileCircuitBreaker
+                    name: fileCircuitBreaker
                     fallbackUri: forward:/fallback/file-service
 
             - id: chat-service
@@ -52,7 +58,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    id: chatCircuitBreaker
+                    name: chatCircuitBreaker
                     fallbackUri: forward:/fallback/chat-service
 
             - id: account-service
@@ -62,8 +68,13 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    id: accountCircuitBreaker
+                    name: accountCircuitBreaker
                     fallbackUri: forward:/fallback/account-service
+
+            - id: realtime-gateway
+              uri: http://realtime-gateway:8086
+              predicates:
+                - Path=/ws/**,/springwolf/**
 
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
