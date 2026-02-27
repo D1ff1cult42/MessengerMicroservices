@@ -237,6 +237,30 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  realtime-gateway:
+    build:
+      context: ./realtime-gateway
+      dockerfile: Dockerfile
+    container_name: messenger-realtime-gateway
+    ports:
+      - "8086:8086"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
   account-service:
     build:
       context: ./account-service
