@@ -19,7 +19,9 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/actuator/**", "/api/auth/**", "/swagger/**",
-                                "/fallback/**", "/health/**", "/springwolf/**")
+                                "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
+                                "/webjars/**", "/docs/**", "/fallback/**",
+                                "/health/**", "/springwolf/**")
                         .permitAll()
                         .anyExchange().permitAll()
                 )

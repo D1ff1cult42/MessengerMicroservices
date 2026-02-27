@@ -76,8 +76,62 @@ spring:
               predicates:
                 - Path=/ws/**,/springwolf/**
 
+            - id: auth-service-docs
+              uri: http://auth-service:8081
+              predicates:
+                - Path=/docs/auth/**
+              filters:
+                - StripPrefix=2
+
+            - id: message-service-docs
+              uri: http://message-service:8082
+              predicates:
+                - Path=/docs/message/**
+              filters:
+                - StripPrefix=2
+
+            - id: chat-service-docs
+              uri: http://chat-service:8084
+              predicates:
+                - Path=/docs/chat/**
+              filters:
+                - StripPrefix=2
+
+            - id: account-service-docs
+              uri: http://account-service:8085
+              predicates:
+                - Path=/docs/account/**
+              filters:
+                - StripPrefix=2
+
+            - id: realtime-gateway-docs
+              uri: http://realtime-gateway:8086
+              predicates:
+                - Path=/docs/realtime/**
+              filters:
+                - StripPrefix=2
+
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    disable-swagger-default-url: true
+    urls:
+      - name: auth-service
+        url: /docs/auth/v3/api-docs
+      - name: message-service
+        url: /docs/message/v3/api-docs
+      - name: chat-service
+        url: /docs/chat/v3/api-docs
+      - name: account-service
+        url: /docs/account/v3/api-docs
+    urls-primary-name: auth-service
 
 management:
   endpoints:

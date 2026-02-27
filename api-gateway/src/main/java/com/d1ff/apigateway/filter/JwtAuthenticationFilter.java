@@ -27,7 +27,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtService jwtService;
 
     private static final List<String> OPEN_PATHS = List.of(
-            "/actuator", "/api/auth", "/swagger", "/fallback", "/health", "/springwolf"
+            "/actuator", "/api/auth", "/swagger", "/swagger-ui", "/v3/api-docs",
+            "/webjars", "/docs", "/fallback", "/health", "/springwolf"
     );
 
     @Override
