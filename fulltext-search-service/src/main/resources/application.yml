@@ -1,2 +1,20 @@
 server:
-  port: 8085
+  port: 8087
+
+spring:
+  application:
+    name: fulltext-search-service
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+
+grpc:
+  client:
+    chat-service:
+      address: static://${CHAT_SERVICE_GRPC_HOST:localhost}:${CHAT_SERVICE_GRPC_PORT:9092}
+      negotiationType: plaintext
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
