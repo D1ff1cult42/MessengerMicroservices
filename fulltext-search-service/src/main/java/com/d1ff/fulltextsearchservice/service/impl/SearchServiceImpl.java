@@ -5,7 +5,7 @@ import com.d1ff.fulltextsearchservice.dto.request.MessageSearchRequest;
 import com.d1ff.fulltextsearchservice.dto.response.MessageSearchResponse;
 import com.d1ff.fulltextsearchservice.entity.document.MessageDocument;
 import com.d1ff.fulltextsearchservice.exceptions.AccessDeniedException;
-import com.d1ff.fulltextsearchservice.grpc.GrpcChatClient;
+import com.d1ff.grpc.client.chat.ChatGrpcClient;
 import com.d1ff.fulltextsearchservice.service.interfaces.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.UUID;
 public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchOperations operations;
-    private final GrpcChatClient grpcChatClient;
+    private final ChatGrpcClient chatGrpcClient;
 
     @Override
     public Page<MessageSearchResponse> search(MessageSearchRequest searchRequest, UUID userId, Pageable pageable) {
@@ -34,7 +34,7 @@ public class SearchServiceImpl implements SearchService {
                 searchRequest.chatId(), userId, searchRequest.query(),
                 pageable.getPageNumber(), pageable.getPageSize());
 
-        if (!grpcChatClient.isUserExistsInChat(userId, searchRequest.chatId())) {
+        if (!chatGrpcClient.isUserExistsInChat(userId, searchRequest.chatId())) {
             log.warn("Access denied: user {} is not a member of chat {}", userId, searchRequest.chatId());
             throw new AccessDeniedException("User does not have access to this chat");
         }

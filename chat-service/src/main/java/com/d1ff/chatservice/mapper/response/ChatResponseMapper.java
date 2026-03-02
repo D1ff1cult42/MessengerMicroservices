@@ -4,7 +4,7 @@ import com.d1ff.chatservice.dto.response.ChatResponse;
 import com.d1ff.chatservice.entity.Chat;
 import com.d1ff.chatservice.repository.ChatParticipantRepository;
 import com.d1ff.dto.response.PresignedUrlResponse;
-import com.d1ff.grpc.client.FileGrpcClient;
+import com.d1ff.grpc.client.file.FileGrpcClient;
 import com.d1ff.page.PageResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;

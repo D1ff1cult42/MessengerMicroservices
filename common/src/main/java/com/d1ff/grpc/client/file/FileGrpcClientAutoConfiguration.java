@@ -1,4 +1,4 @@
-package com.d1ff.grpc.client;
+package com.d1ff.grpc.client.file;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

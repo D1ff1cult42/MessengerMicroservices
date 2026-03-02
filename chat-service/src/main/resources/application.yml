@@ -1,6 +1,8 @@
 grpc:
   file-client:
     enabled: true
+  account-client:
+    enabled: true
   server:
     port: 9092
   client:

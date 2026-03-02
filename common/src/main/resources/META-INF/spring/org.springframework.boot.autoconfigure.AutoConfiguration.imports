@@ -1,2 +1,4 @@
 com.d1ff.bucket.BucketResolverAutoConfiguration
-com.d1ff.grpc.client.FileGrpcClientAutoConfiguration
+com.d1ff.grpc.client.file.FileGrpcClientAutoConfiguration
+com.d1ff.grpc.client.account.AccountGrpcClientAutoConfiguration
+com.d1ff.grpc.client.chat.ChatGrpcClientAutoConfiguration

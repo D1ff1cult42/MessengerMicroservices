@@ -3,7 +3,7 @@ package com.d1ff.accountservice.mapper.response;
 import com.d1ff.accountservice.dto.response.AccountResponse;
 import com.d1ff.accountservice.entity.Account;
 import com.d1ff.dto.response.PresignedUrlResponse;
-import com.d1ff.grpc.client.FileGrpcClient;
+import com.d1ff.grpc.client.file.FileGrpcClient;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

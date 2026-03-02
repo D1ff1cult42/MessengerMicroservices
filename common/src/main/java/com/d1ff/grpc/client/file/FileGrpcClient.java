@@ -1,4 +1,4 @@
-package com.d1ff.grpc.client;
+package com.d1ff.grpc.client.file;
 
 import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;

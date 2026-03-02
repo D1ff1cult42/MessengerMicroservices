@@ -8,6 +8,8 @@ spring:
     uris: ${ELASTICSEARCH_URI:http://localhost:9200}
 
 grpc:
+  chat-client:
+    enabled: true
   client:
     chat-service:
       address: static://${CHAT_SERVICE_GRPC_HOST:localhost}:${CHAT_SERVICE_GRPC_PORT:9092}

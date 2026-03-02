@@ -6,6 +6,8 @@ grpc:
     port: ${ACCOUNT_GRPC_PORT:9092}
   file-client:
     enabled: true
+  account-client:
+    enabled: true
   client:
     file-service:
       address: static://${FILE_SERVICE_GRPC_HOST:file-service}:${FILE_SERVICE_GRPC_PORT:9091}

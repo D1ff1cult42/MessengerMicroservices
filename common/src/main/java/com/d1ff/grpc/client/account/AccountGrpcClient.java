@@ -1,18 +1,14 @@
-package com.d1ff.chatservice.grpc;
+package com.d1ff.grpc.client.account;
 
-import com.d1ff.chatservice.dto.response.AccountGrpcResponse;
-import com.d1ff.chatservice.exceptions.UserNotFound;
 import com.d1ff.common.grpc.account.AccountGrpcServiceGrpc;
 import com.d1ff.common.grpc.account.GetAccountByEmailRequest;
 import com.d1ff.common.grpc.account.GetAccountByEmailResponse;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
 @Slf4j
 public class AccountGrpcClient {
 
@@ -40,7 +36,7 @@ public class AccountGrpcClient {
             );
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed for email {}: {}", email, e.getStatus());
-            throw new UserNotFound("User with email " + email + " not found");
+            throw new RuntimeException("User with email " + email + " not found", e);
         }
     }
 
@@ -59,7 +55,7 @@ public class AccountGrpcClient {
             return UUID.fromString(response.getUserId());
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed for email {}: {}", email, e.getStatus());
-            throw new UserNotFound("User with email " + email + " not found");
+            throw new RuntimeException("User with email " + email + " not found", e);
         }
     }
 }

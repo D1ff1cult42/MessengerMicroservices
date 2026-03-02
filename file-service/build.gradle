@@ -37,12 +37,9 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // gRPC server
-    implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
-    implementation platform('io.grpc:grpc-bom:1.60.1')
-    implementation 'io.grpc:grpc-api'
-    implementation 'io.grpc:grpc-stub'
-    implementation 'io.grpc:grpc-protobuf'
-    implementation 'io.grpc:grpc-netty-shaded'
+    implementation('net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE') {
+        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    }
 
     implementation(project(':common'))
 }

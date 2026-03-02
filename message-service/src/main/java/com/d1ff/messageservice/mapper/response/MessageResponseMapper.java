@@ -3,7 +3,7 @@ package com.d1ff.messageservice.mapper.response;
 import com.d1ff.dto.response.PresignedUrlResponse;
 import com.d1ff.messageservice.dto.response.MessageResponse;
 import com.d1ff.messageservice.entity.Message;
-import com.d1ff.grpc.client.FileGrpcClient;
+import com.d1ff.grpc.client.file.FileGrpcClient;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

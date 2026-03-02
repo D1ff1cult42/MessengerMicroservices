@@ -16,10 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.d1ff.bucket.BucketResolver;
 import com.d1ff.dto.response.FileUploadResponse;
-import com.d1ff.grpc.client.FileGrpcClient;
+import com.d1ff.grpc.client.file.FileGrpcClient;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
