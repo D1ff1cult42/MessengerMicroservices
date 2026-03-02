@@ -71,6 +71,16 @@ spring:
                     name: accountCircuitBreaker
                     fallbackUri: forward:/fallback/account-service
 
+            - id: fulltext-search-service
+              uri: http://fulltext-search-service:8087
+              predicates:
+                - Path=/api/search/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: searchCircuitBreaker
+                    fallbackUri: forward:/fallback/fulltext-search-service
+
             - id: realtime-gateway
               uri: http://realtime-gateway:8086
               predicates:
@@ -111,6 +121,13 @@ spring:
               filters:
                 - StripPrefix=2
 
+            - id: fulltext-search-service-docs
+              uri: http://fulltext-search-service:8087
+              predicates:
+                - Path=/docs/search/**
+              filters:
+                - StripPrefix=2
+
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
 
@@ -131,6 +148,8 @@ springdoc:
         url: /docs/chat/v3/api-docs
       - name: account-service
         url: /docs/account/v3/api-docs
+      - name: fulltext-search-service
+        url: /docs/search/v3/api-docs
     urls-primary-name: auth-service
 
 management:
@@ -177,6 +196,13 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+      searchCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
 
 
   timelimiter:
@@ -190,4 +216,6 @@ resilience4j:
       chatCircuitBreaker:
         timeoutDuration: 5s
       accountCircuitBreaker:
+        timeoutDuration: 5s
+      searchCircuitBreaker:
         timeoutDuration: 5s
