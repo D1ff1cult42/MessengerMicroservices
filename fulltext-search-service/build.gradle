@@ -25,7 +25,10 @@ repositories {
 }
 
 dependencies {
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-elasticsearch'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     compileOnly 'org.projectlombok:lombok'
@@ -34,7 +37,16 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-elasticsearch-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    implementation(project(':common'))
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
+    implementation platform('io.grpc:grpc-bom:1.60.1')
+    implementation 'io.grpc:grpc-api'
+    implementation 'io.grpc:grpc-stub'
+    implementation 'io.grpc:grpc-protobuf'
+    implementation 'io.grpc:grpc-netty-shaded'
 }
 
 tasks.named('test') {
