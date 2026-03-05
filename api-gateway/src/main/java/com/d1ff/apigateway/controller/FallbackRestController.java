@@ -45,5 +45,11 @@ public class FallbackRestController {
         return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body("Full-text search service is currently unavailable. Please try again later."));
     }
+
+    @GetMapping("/mail-service")
+    public Mono<ResponseEntity<String>> mailServiceFallback() {
+        return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Mail service is currently unavailable. Please try again later."));
+    }
 }
 

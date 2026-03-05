@@ -347,6 +347,40 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  mail-service:
+    build:
+      context: ./mail-service
+      dockerfile: Dockerfile
+    container_name: messenger-mail-service
+    ports:
+      - "8088:8088"
+    environment:
+      MAIL_DATASOURCE_URL: ${MAIL_DATASOURCE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_TOKEN_EXPIRATION: ${MAIL_TOKEN_EXPIRATION}
+      MAIL_CONFIRM_URL: ${MAIL_CONFIRM_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - messenger-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
 networks:
   messenger-network:
     driver: bridge

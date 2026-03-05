@@ -86,6 +86,16 @@ spring:
               predicates:
                 - Path=/ws/**,/springwolf/**
 
+            - id: mail-service
+              uri: http://mail-service:8088
+              predicates:
+                - Path=/api/mail/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: mailCircuitBreaker
+                    fallbackUri: forward:/fallback/mail-service
+
             - id: auth-service-docs
               uri: http://auth-service:8081
               predicates:
@@ -128,6 +138,13 @@ spring:
               filters:
                 - StripPrefix=2
 
+            - id: mail-service-docs
+              uri: http://mail-service:8088
+              predicates:
+                - Path=/docs/mail/**
+              filters:
+                - StripPrefix=2
+
 jwt:
   public-key: ${JWT_PUBLIC_KEY}
 
@@ -150,6 +167,8 @@ springdoc:
         url: /docs/account/v3/api-docs
       - name: fulltext-search-service
         url: /docs/search/v3/api-docs
+      - name: mail-service
+        url: /docs/mail/v3/api-docs
     urls-primary-name: auth-service
 
 management:
@@ -203,6 +222,13 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+      mailCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
 
 
   timelimiter:
@@ -218,4 +244,6 @@ resilience4j:
       accountCircuitBreaker:
         timeoutDuration: 5s
       searchCircuitBreaker:
+        timeoutDuration: 5s
+      mailCircuitBreaker:
         timeoutDuration: 5s
