@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    maven{ url "https://package.confluent.io/maven/"}
+    maven { url "https://packages.confluent.io/maven/" }
 }
 
 java {
