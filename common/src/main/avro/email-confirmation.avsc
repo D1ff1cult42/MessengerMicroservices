@@ -1,0 +1,37 @@
+{
+  "type": "record",
+  "name": "EmailConfirmationEvent",
+  "namespace": "com.d1ff.common.avro",
+  "doc": "Event emitted by auth-service when a new user registers and needs email confirmation",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique event ID for idempotency"
+    },
+    {
+      "name": "userId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of registered user"
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "doc": "Email address to send confirmation to"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Event creation timestamp in epoch millis"
+    }
+  ]
+}
