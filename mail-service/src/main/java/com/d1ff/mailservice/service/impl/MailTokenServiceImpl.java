@@ -99,7 +99,6 @@ public class MailTokenServiceImpl implements MailTokenService {
         return mailToken.getUserId();
     }
 
-    @Override
     @Scheduled(fixedDelayString = "${mail.token.scheduled-check-interval:3600000}")
     public void checkUnverifiedAccounts() {
         log.info("Scheduled to send unverified started");
@@ -115,7 +114,6 @@ public class MailTokenServiceImpl implements MailTokenService {
         }
     }
 
-    @Override
     @Scheduled(fixedDelayString = "${mail.token.cleanup-interval:86400000}")
     public void deleteUsedAndExpiredTokens() {
         log.info("Scheduled to delete expired and used tokens started");
