@@ -38,6 +38,27 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8071}
+      specific.avro.reader: true
+    consumer:
+      group-id: mail-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        session.timeout.ms: 45000
+        heartbeat.interval.ms: 15000
+        max.poll.interval.ms: 300000
+        max.poll.records: 10
+        fetch.min.bytes: 1
+        fetch.max.wait.ms: 500
+    listener:
+      ack-mode: manual
+      concurrency: 3
 
 mail:
   token:
