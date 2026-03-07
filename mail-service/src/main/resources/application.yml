@@ -43,6 +43,8 @@ spring:
     properties:
       schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8071}
       specific.avro.reader: true
+      use.latest.version: false
+      value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
     consumer:
       group-id: mail-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -56,6 +58,19 @@ spring:
         max.poll.records: 10
         fetch.min.bytes: 1
         fetch.max.wait.ms: 500
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        linger.ms: 10
+        batch.size: 16384
+        compression.type: lz4
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
     listener:
       ack-mode: manual
       concurrency: 3

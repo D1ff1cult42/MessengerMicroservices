@@ -44,10 +44,6 @@ spring:
       acks: all
       retries: 3
       properties:
-        schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8071}
-        auto.register.schemas: true
-        use.latest.version: false
-        value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
         linger.ms: 10
