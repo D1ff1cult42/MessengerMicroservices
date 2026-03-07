@@ -13,7 +13,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmailEventProducer {
+public class EmailConfirmationProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void sendEmailConfirmation(UUID userId, String email){
