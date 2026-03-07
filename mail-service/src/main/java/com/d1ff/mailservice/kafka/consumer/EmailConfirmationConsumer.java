@@ -1,4 +1,4 @@
-package com.d1ff.mailservice.kafka;
+package com.d1ff.mailservice.kafka.consumer;
 
 import com.d1ff.common.avro.EmailConfirmationEvent;
 import com.d1ff.mailservice.service.interfaces.MailTokenService;

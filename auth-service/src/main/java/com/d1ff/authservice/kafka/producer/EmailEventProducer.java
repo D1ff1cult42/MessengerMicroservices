@@ -1,4 +1,4 @@
-package com.d1ff.authservice.kafka;
+package com.d1ff.authservice.kafka.producer;
 
 import com.d1ff.common.avro.EmailConfirmationEvent;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EmailEventProducer {
-    private final KafkaTemplate<String, EmailConfirmationEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void sendEmailConfirmation(UUID userId, String email){
         EmailConfirmationEvent event = EmailConfirmationEvent.newBuilder()
