@@ -1,4 +1,4 @@
-package com.d1ff.authservice.config;
+package com.d1ff.mailservice.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
@@ -9,8 +9,8 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicConfig {
     @Bean
-    public NewTopic emailConfirmationTopic(){
-        return TopicBuilder.name("email-confirmation")
+    public NewTopic emailConfirmedTopic() {
+        return TopicBuilder.name("email-confirmed")
                 .partitions(3)
                 .replicas(1)
                 .config(TopicConfig.RETENTION_MS_CONFIG, "604800000")
@@ -20,8 +20,8 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic emailConfirmedDltTopic(){
-        return TopicBuilder.name("email-confirmed-dlt")
+    public NewTopic emailConfirmationDltTopic() {
+        return TopicBuilder.name("email-confirmation-dlt")
                 .partitions(3)
                 .replicas(1)
                 .config(TopicConfig.RETENTION_MS_CONFIG, "604800000")

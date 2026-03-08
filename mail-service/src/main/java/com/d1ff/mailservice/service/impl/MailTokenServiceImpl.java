@@ -2,6 +2,7 @@ package com.d1ff.mailservice.service.impl;
 
 import com.d1ff.mailservice.entity.MailToken;
 import com.d1ff.mailservice.exceptions.EmailException;
+import com.d1ff.mailservice.kafka.producer.EmailConfirmedProducer;
 import com.d1ff.mailservice.repository.MailTokenRepository;
 import com.d1ff.mailservice.service.interfaces.MailTokenService;
 import jakarta.mail.MessagingException;
@@ -29,6 +30,7 @@ public class MailTokenServiceImpl implements MailTokenService {
     private final JavaMailSender mailSender;
     private final MailTokenRepository mailTokenRepository;
     private final TemplateEngine templateEngine;
+    private final EmailConfirmedProducer emailConfirmedProducer;
 
     @Value("${mail.token.deletionReminderTime}")
     private Duration deletionReminderTime;
@@ -94,6 +96,11 @@ public class MailTokenServiceImpl implements MailTokenService {
         mailToken.setUsed(true);
         mailToken.setConfirmedAt(LocalDateTime.now());
         mailTokenRepository.save(mailToken);
+
+        mailTokenRepository.findByToken(token).orElseThrow(
+                () -> new EmailException("Token not found")
+        );
+        emailConfirmedProducer.sendEmailConfirmed(mailToken.getUserId(), mailToken.getEmail());
 
         log.info("Token {} confirm", token);
         return mailToken.getUserId();

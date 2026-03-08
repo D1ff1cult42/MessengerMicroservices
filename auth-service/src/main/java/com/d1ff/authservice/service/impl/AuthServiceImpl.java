@@ -1,6 +1,6 @@
 package com.d1ff.authservice.service.impl;
 
-import com.d1ff.authservice.kafka.EmailEventProducer;
+import com.d1ff.authservice.kafka.producer.EmailConfirmationProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.d1ff.authservice.dto.response.AuthResponse;
@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final EmailEventProducer emailEventProducer;
+    private final EmailConfirmationProducer emailConfirmationProducer;
 
     @Value("${auth.access-token-expiration}")
     private Duration accessTokenExpiration;
@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("New user registered: {}", user.getEmail());
 
         //Kafka
-        emailEventProducer.sendEmailConfirmation(user.getId(), user.getEmail());
+        emailConfirmationProducer.sendEmailConfirmation(user.getId(), user.getEmail());
 
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);

@@ -1,4 +1,4 @@
-package com.d1ff.mailservice.config;
+package com.d1ff.authservice.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
