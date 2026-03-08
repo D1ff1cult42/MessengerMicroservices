@@ -36,7 +36,7 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt:10.0.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.2'
     implementation("com.bucket4j:bucket4j_jdk17-core:8.16.1")
     implementation("com.bucket4j:bucket4j-caffeine:8.10.1")
     implementation 'io.lettuce:lettuce-core'
