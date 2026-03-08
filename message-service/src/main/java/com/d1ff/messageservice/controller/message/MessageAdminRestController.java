@@ -75,7 +75,7 @@ public class MessageAdminRestController {
             @RequestParam(defaultValue = "10") int size) {
         if(role.equals("ADMIN")){
             Pageable pageable = PageRequest.of(page, size);
-            Page messages = messageService.getMessagesOfUserForAdmin(userId, pageable);
+            Page<MessageResponse> messages = messageService.getMessagesOfUserForAdmin(userId, pageable);
             return ResponseEntity.ok(PageResponse.fromPage(messages));
         }
         throw new AccessDeniedException("Access denied!");
@@ -130,7 +130,7 @@ public class MessageAdminRestController {
             @RequestParam(defaultValue = "10") int size) {
         if(role.equals("ADMIN")){
             Pageable pageable = PageRequest.of(page, size);
-            Page messages = messageService.getMessagesInChat(chatId, pageable);
+            Page<MessageResponse> messages = messageService.getMessagesInChat(chatId, pageable);
             return ResponseEntity.ok(PageResponse.fromPage(messages));
         }
         throw new AccessDeniedException("Access denied!");
