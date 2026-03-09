@@ -1,12 +1,13 @@
 package com.d1ff.authservice.kafka.producer;
 
+import com.d1ff.authservice.entity.OutboxEvent;
+import com.d1ff.authservice.repository.OutboxEventRepository;
 import com.d1ff.common.avro.EmailConfirmationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,26 +15,26 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EmailConfirmationProducer {
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxEventRepository outboxEventRepository;
 
-    public void sendEmailConfirmation(UUID userId, String email){
-        EmailConfirmationEvent event = EmailConfirmationEvent.newBuilder()
-                .setEventId(UUID.randomUUID())
-                .setUserId(userId)
-                .setEmail(email)
-                .setTimestamp(Instant.now())
-                .build();
+    public void sendEmailConfirmation(UUID userId, String email) {
+        try {
+            EmailConfirmationEvent event = EmailConfirmationEvent.newBuilder()
+                    .setEventId(UUID.randomUUID())
+                    .setUserId(userId)
+                    .setEmail(email)
+                    .setTimestamp(Instant.now())
+                    .build();
 
-        kafkaTemplate.send("email-confirmation", userId.toString(), event)
-                .whenComplete((result, ex) -> {
-                    if(ex != null){
-                        log.error("Failed to send email confirmation event: userId={}, error={}"
-                                ,userId, ex.getMessage(), ex);
-                    }else{
-                        RecordMetadata meta = result.getRecordMetadata();
-                        log.info("Email confirmation event sent: userId={}, topic={}, partition={}, offset={}",
-                                userId, meta.topic(), meta.partition(), meta.offset());
-                    }
-                });
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .aggregateId(userId.toString())
+                    .topic("email-confirmation")
+                    .payload(event.toByteBuffer().array())
+                    .build();
+
+            outboxEventRepository.save(outboxEvent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
