@@ -22,10 +22,13 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {url "https://packages.confluent.io/maven/"}
 }
 
 dependencies {
     implementation("org.mapstruct:mapstruct:1.6.3")
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
@@ -36,6 +39,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation("org.springframework.boot:spring-boot-starter-actuator:4.0.2")
+    implementation ('io.confluent:kafka-avro-serializer:7.7.1'){
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotation'
+    }
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'

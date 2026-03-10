@@ -1,5 +1,6 @@
 package com.d1ff.messageservice.service.impl;
 
+import com.d1ff.messageservice.kafka.producer.MessageSentProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.d1ff.bucket.BucketResolver;
@@ -32,6 +33,7 @@ public class MessageServiceImpl implements MessageService {
 
     private final FileGrpcClient fileService;
     private final ChatGrpcClient chatGrpcClient;
+    private final MessageSentProducer messageSentProducer;
     private final MessageRepository messageRepository;
     private final MessageResponseMapper messageResponseMapper;
     private final MessageStatusService messageStatusService;
@@ -90,6 +92,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         Message savedMessage = messageRepository.save(message);
+        messageSentProducer.send(savedMessage, com.d1ff.common.avro.MessageType.CREATED);
 
         log.info("Message saved with ID {}. Initializing message statuses for all chat participants.", savedMessage.getId());
         messageStatusService.initializeStatusesForNewMessage(savedMessage);
@@ -113,6 +116,7 @@ public class MessageServiceImpl implements MessageService {
 
         message.setDeletedAt(LocalDateTime.now());
         message.setDeleted(true);
+        messageSentProducer.send(message, com.d1ff.common.avro.MessageType.DELETED);
         log.info("Message {} marked as deleted by user {}", messageId, userId);
     }
 
@@ -125,6 +129,7 @@ public class MessageServiceImpl implements MessageService {
 
         message.setDeletedAt(LocalDateTime.now());
         message.setDeleted(true);
+        messageSentProducer.send(message, com.d1ff.common.avro.MessageType.DELETED);
         log.info("Message {} marked as deleted by admin", messageId);
     }
 
@@ -144,6 +149,7 @@ public class MessageServiceImpl implements MessageService {
         message.setContent(newContent);
         message.setIsEdited(true);
         message.setUpdatedAt(LocalDateTime.now());
+        messageSentProducer.send(message, com.d1ff.common.avro.MessageType.UPDATED);
 
         log.info("Message with ID {} updated by user {}. New content: {}", messageId, userId, newContent);
         return messageResponseMapper.toMessageResponseWithUrl(message, fileService);

@@ -5,6 +5,7 @@ import com.d1ff.messageservice.entity.MessageStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -31,4 +32,8 @@ public interface MessageStatusRepository extends JpaRepository<MessageStatus, Lo
 
     @Query("SELECT ms FROM MessageStatus ms LEFT JOIN FETCH ms.message m WHERE m.fromUser = :userId AND m.chatId = :chatId AND m.deleted = false ORDER BY m.createdAt DESC")
     Page<MessageStatus> findMessageStatusesByFromUserAndChatAndNotDeleted(@Param("userId") UUID userId, @Param("chatId") UUID chatId, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE MessageStatus ms SET ms.status = :status WHERE ms.userId = :userId AND ms.message.id = :messageId")
+    void updateMessageStatusForUserAndMessage(@Param("userId") UUID userId, @Param("messageId") Long messageId, @Param("status") DeliveryStatus status);
 }
