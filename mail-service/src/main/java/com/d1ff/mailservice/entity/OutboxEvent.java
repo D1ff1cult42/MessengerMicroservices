@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 @Data
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 public class OutboxEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
+    private UUID id;
 
     private String aggregateId;
     private String topic;
