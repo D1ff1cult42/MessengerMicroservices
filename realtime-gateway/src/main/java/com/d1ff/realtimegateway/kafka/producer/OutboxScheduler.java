@@ -1,6 +1,6 @@
 package com.d1ff.realtimegateway.kafka.producer;
 
-import com.d1ff.common.avro.EmailConfirmationEvent;
+import com.d1ff.common.avro.MessageDeliveredEvent;
 import com.d1ff.realtimegateway.entity.OutboxEvent;
 import com.d1ff.realtimegateway.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +26,13 @@ public class OutboxScheduler {
         List<OutboxEvent> outboxEvents = outboxEventRepository.findTop100BySentFalseOrderByCreatedAtAsc();
         for (OutboxEvent outboxEvent : outboxEvents) {
             try{
-                EmailConfirmationEvent emailConfirmationEvent = EmailConfirmationEvent
+                MessageDeliveredEvent event = MessageDeliveredEvent
                         .fromByteBuffer(ByteBuffer.wrap(outboxEvent.getPayload()));
 
-                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), emailConfirmationEvent)
+                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), event)
                         .get();
+
+                outboxEvent.setSent(true);
             }catch (Exception e){
                 log.error("Failed to send outbox event: id={}, error={}", outboxEvent.getId(), e.getMessage());
                 break;

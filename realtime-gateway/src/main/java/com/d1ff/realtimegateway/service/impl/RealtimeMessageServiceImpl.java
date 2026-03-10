@@ -57,10 +57,11 @@ public class RealtimeMessageServiceImpl implements RealtimeMessageService {
 
         for (String userId : onlineUserIds){
             MessageDeliveredEvent delivered = MessageDeliveredEvent.newBuilder()
-                    .setMessageId(event.getMessageId())
-                    .setChatId(event.getChatId())
-                    .setUserId(UUID.fromString(userId))
-                    .setTimestamp(Instant.now())
+                                        .setEventId(UUID.randomUUID())
+                                        .setMessageId(event.getMessageId())
+                                        .setChatId(event.getChatId())
+                                        .setUserId(UUID.fromString(userId))
+                                        .setTimestamp(Instant.now())
                     .build();
             messageDeliveredProducer.handleMessageDelivered(delivered);
         }
