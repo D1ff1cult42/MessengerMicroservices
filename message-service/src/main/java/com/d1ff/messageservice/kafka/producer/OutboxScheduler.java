@@ -31,6 +31,8 @@ public class OutboxScheduler {
 
                 kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), emailConfirmationEvent)
                         .get();
+                outboxEvent.setSent(true);
+
             }catch (Exception e){
                 log.error("Failed to send outbox event: id={}, error={}", outboxEvent.getId(), e.getMessage());
                 break;
