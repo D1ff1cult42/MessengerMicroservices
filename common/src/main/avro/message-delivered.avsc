@@ -1,0 +1,47 @@
+{
+  "type": "record",
+  "name": "MessageDeliveredEvent",
+  "namespace": "com.d1ff.common.avro",
+  "doc": "Event emitted by message-service when a message is delivered to a recipient",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique event ID for idempotency"
+    },
+    {
+      "name": "chatId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of the chat the message belongs to"
+    },
+    {
+      "name": "userId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of the user who get message"
+    },
+    {
+      "name": "messageId",
+      "type": {
+        "type": "long"
+      },
+      "doc": "ID of the message"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Event creation timestamp in epoch millis"
+    }
+  ]
+}

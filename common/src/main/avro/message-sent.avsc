@@ -1,0 +1,66 @@
+{
+  "type": "record",
+  "name": "MessageSentEvent",
+  "namespace": "com.d1ff.common.avro",
+  "doc": "Event emitted by message-service when a message is sent",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique event ID for idempotency"
+    },
+    {
+      "name": "chatId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of the chat the message belongs to"
+    },
+    {
+      "name": "senderId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of the user who sent the message"
+    },
+    {
+      "name": "messageId",
+      "type": {
+        "type": "long"
+      },
+      "doc": "ID of the message"
+    },
+    {
+      "name": "content",
+      "type": ["string","null"],
+      "doc": "Message content"
+    },
+    {
+      "name": "messageType",
+      "type": {
+        "type": "enum",
+        "name": "MessageType",
+        "symbols": [
+          "CREATED",
+          "UPDATED",
+          "DELETED"
+        ],
+        "default": "CREATED"
+      },
+      "doc": "Type of message from message-service"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Event creation timestamp in epoch millis"
+    }
+  ]
+}
