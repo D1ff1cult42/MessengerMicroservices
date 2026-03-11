@@ -15,17 +15,22 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "outbox-events")
+@Table(name = "outbox_events")
 public class OutboxEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String aggregateId;
+    @Column(nullable = false)
     private String topic;
+    @Column(nullable = false)
     private byte[] payload;
     @CreationTimestamp
-    private LocalDateTime timestamp;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
     @Builder.Default
+    @Column(nullable = false)
     private boolean sent = false;
 }

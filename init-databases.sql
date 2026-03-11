@@ -3,3 +3,4 @@ CREATE DATABASE message_db;
 CREATE DATABASE chat_db;
 CREATE DATABASE account_db;
 CREATE DATABASE mail_db;
+CREATE DATABASE realtime_db;

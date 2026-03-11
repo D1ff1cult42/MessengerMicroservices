@@ -4,6 +4,25 @@ server:
 spring:
   application:
     name: realtime-gateway
+  datasource:
+    url: ${REALTIME_DATASOURCE_URL:jdbc:postgresql://localhost:5432/realtime_db}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    baseline-version: 0
+    validate-on-migrate: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
     properties:
@@ -12,7 +31,7 @@ spring:
       use.latest.version: false
       value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
     consumer:
-      group-id: mail-service-group
+      group-id: realtime-gateway-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
       auto-offset-reset: earliest
@@ -40,7 +59,13 @@ spring:
     listener:
       ack-mode: manual
       concurrency: 3
-
+grpc:
+  chat-client:
+    enabled: true
+  client:
+    chat-service:
+      address: static://${CHAT_SERVICE_GRPC_HOST:chat-service}:${CHAT_SERVICE_GRPC_PORT:9092}
+      negotiation-type: plaintext
 
 springwolf:
   docket:

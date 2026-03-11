@@ -81,10 +81,14 @@ spring:
                     name: searchCircuitBreaker
                     fallbackUri: forward:/fallback/fulltext-search-service
 
+            - id: realtime-gateway-ws
+              uri: ws://realtime-gateway:8086
+              predicates:
+                - Path=/ws/**
             - id: realtime-gateway
               uri: http://realtime-gateway:8086
               predicates:
-                - Path=/ws/**,/springwolf/**
+                - Path=/springwolf/**
 
             - id: mail-service
               uri: http://mail-service:8088

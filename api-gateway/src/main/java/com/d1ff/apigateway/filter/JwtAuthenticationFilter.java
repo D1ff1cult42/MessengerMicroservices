@@ -31,6 +31,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/webjars", "/docs", "/fallback", "/health", "/springwolf"
     );
 
+    private static final List<String> PROTECTED_PATHS = List.of("/ws");
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
@@ -43,8 +45,19 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.debug("No Bearer token found for path: {}, passing to next filter", path);
-            return chain.filter(exchange);
+            // For WebSocket handshake, try to extract token from query parameter
+            if (PROTECTED_PATHS.stream().anyMatch(path::startsWith)) {
+                String tokenParam = exchange.getRequest().getQueryParams().getFirst("token");
+                if (tokenParam != null && !tokenParam.isBlank()) {
+                    authHeader = "Bearer " + tokenParam;
+                } else {
+                    log.warn("No Bearer token found for protected path: {}", path);
+                    return unauthorizedResponse(exchange, "Authentication required");
+                }
+            } else {
+                log.debug("No Bearer token found for path: {}, passing to next filter", path);
+                return chain.filter(exchange);
+            }
         }
 
         String token = authHeader.substring(7);

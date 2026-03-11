@@ -7,4 +7,4 @@ CREATE TABLE outbox_events (
                                sent          BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_outbox_not_sent ON outbox_event (sent) WHERE sent = FALSE;
+CREATE INDEX idx_outbox_not_sent ON outbox_events (sent) WHERE sent = FALSE;

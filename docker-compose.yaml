@@ -40,6 +40,8 @@ services:
       MESSAGE_DATASOURCE_URL: ${MESSAGE_DATASOURCE_URL}
       DATABASE_USERNAME: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
       FILE_SERVICE_GRPC_HOST: file-service
       FILE_SERVICE_GRPC_PORT: 9091
       CHAT_SERVICE_GRPC_HOST: chat-service
@@ -52,6 +54,10 @@ services:
       file-service:
         condition: service_healthy
       chat-service:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      schema-registry:
         condition: service_healthy
     networks:
       - messenger-network
@@ -250,8 +256,20 @@ services:
     container_name: messenger-realtime-gateway
     ports:
       - "8086:8086"
+    environment:
+      REALTIME_DATASOURCE_URL: ${REALTIME_DATASOURCE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
     depends_on:
+      postgres:
+        condition: service_healthy
       api-gateway:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      schema-registry:
         condition: service_healthy
     networks:
       - messenger-network

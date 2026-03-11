@@ -60,7 +60,7 @@ spring:
       use.latest.version: false
       value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
     consumer:
-      group-id: mail-service-group
+      group-id: message-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
       auto-offset-reset: earliest
