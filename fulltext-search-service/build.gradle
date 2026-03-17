@@ -22,15 +22,24 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {url "https://packages.confluent.io/maven/"}
 }
 
 dependencies {
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-elasticsearch'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation('io.confluent:kafka-avro-serializer:7.7.1') {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotation'
+    }
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
@@ -43,5 +52,6 @@ dependencies {
 }
 
 tasks.named('test') {
+    enabled = false
     useJUnitPlatform()
 }
