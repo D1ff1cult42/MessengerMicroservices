@@ -35,13 +35,13 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:15000}
+          timeout: ${MAIL_READ_TIMEOUT:15000}
+          writetimeout: ${MAIL_WRITE_TIMEOUT:15000}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
     properties:
-      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8071}
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
       specific.avro.reader: true
       use.latest.version: false
       value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
@@ -83,6 +83,9 @@ mail:
   confirm-url: ${MAIL_CONFIRM_URL:http://localhost:8080/api/mail/confirm}
 
 management:
+  health:
+    mail:
+      enabled: ${MAIL_HEALTH_ENABLED:false}
   endpoint:
     health:
       show-details: never
