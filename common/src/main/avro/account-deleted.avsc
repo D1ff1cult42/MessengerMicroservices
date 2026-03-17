@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "AccountDeletedEvent",
+  "namespace": "com.d1ff.common.avro",
+  "doc": "Event emitted by account-service when account was deleted",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique id of event"
+    },
+    {
+      "name": "userId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "UUID of registered user "
+    },
+    {
+      "name": "createdAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Timestamp of creation event"
+    }
+  ]
+}
