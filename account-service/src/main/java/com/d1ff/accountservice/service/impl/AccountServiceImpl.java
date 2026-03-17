@@ -7,6 +7,7 @@ import com.d1ff.accountservice.dto.response.AccountResponse;
 import com.d1ff.accountservice.entity.Account;
 import com.d1ff.accountservice.exceptions.AccountAlreadyExists;
 import com.d1ff.accountservice.exceptions.AccountNotFoundException;
+import com.d1ff.accountservice.kafka.producer.AccountDeletedProducer;
 import com.d1ff.accountservice.mapper.request.CreateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.request.UpdateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.response.AccountResponseMapper;
@@ -30,6 +31,7 @@ public class AccountServiceImpl implements AccountService {
     private final CreateAccountRequestMapper createAccountRequestMapper;
     private final AccountResponseMapper accountResponseMapper;
     private final UpdateAccountRequestMapper updateAccountRequestMapper;
+    private final AccountDeletedProducer accountDeletedProducer;
     private final BucketResolver bucketResolver;
     private final FileGrpcClient fileService;
 
@@ -77,6 +79,10 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(userId)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found for user: " + userId));
         accountRepository.delete(account);
+
+        //kafka account->auth producer
+        log.info("Sent to kafka producer(outbox-table) for account of user {}", userId);
+        accountDeletedProducer.sendAccountDeletedMessage(account.getUserId());
     }
 
     @Override
