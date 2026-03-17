@@ -26,7 +26,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
     properties:
-      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8071}
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
       specific.avro.reader: true
       use.latest.version: false
       value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
