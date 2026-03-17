@@ -53,9 +53,6 @@ public class MessageServiceImpl implements MessageService {
         String fileName = null;
         Long fileSize = null;
 
-        //TODO: Нужно прокинуть в сервис чата grpc запрос с участниками чата и разослать статус sent
-        //TODO: Нужно в сервисе нотификации подключить пользователей к вебсокету и проверять статус доставки, подключить через Kafka
-
 
         if (createMessageRequest.multipartFile() != null) {
             messageType = fileTypeResolver.resolveMessageType(createMessageRequest.multipartFile().getOriginalFilename());

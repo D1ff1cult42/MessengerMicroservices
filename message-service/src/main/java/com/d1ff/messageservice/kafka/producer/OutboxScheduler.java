@@ -1,6 +1,7 @@
 package com.d1ff.messageservice.kafka.producer;
 
 import com.d1ff.common.avro.EmailConfirmationEvent;
+import com.d1ff.common.avro.MessageSentEvent;
 import com.d1ff.messageservice.entity.OutboxEvent;
 import com.d1ff.messageservice.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,10 @@ public class OutboxScheduler {
         List<OutboxEvent> outboxEvents = outboxEventRepository.findTop100BySentFalseOrderByCreatedAtAsc();
         for (OutboxEvent outboxEvent : outboxEvents) {
             try{
-                EmailConfirmationEvent emailConfirmationEvent = EmailConfirmationEvent
-                        .fromByteBuffer(ByteBuffer.wrap(outboxEvent.getPayload()));
+                MessageSentEvent messageSentEvent = MessageSentEvent.
+                        fromByteBuffer(ByteBuffer.wrap(outboxEvent.getPayload()));
 
-                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), emailConfirmationEvent)
+                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), messageSentEvent)
                         .get();
                 outboxEvent.setSent(true);
 
