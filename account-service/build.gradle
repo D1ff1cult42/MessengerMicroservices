@@ -22,10 +22,18 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://packages.confluent.io/maven/'
+    }
 }
 
 dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation('io.confluent:kafka-avro-serializer:7.7.1') {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotations'
+    }
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
