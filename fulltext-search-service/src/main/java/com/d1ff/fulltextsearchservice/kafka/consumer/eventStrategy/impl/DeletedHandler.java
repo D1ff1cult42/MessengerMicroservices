@@ -2,10 +2,7 @@ package com.d1ff.fulltextsearchservice.kafka.consumer.eventStrategy.impl;
 
 import com.d1ff.common.avro.MessageSentEvent;
 import com.d1ff.common.avro.MessageType;
-import com.d1ff.fulltextsearchservice.entity.document.MessageDocument;
-import com.d1ff.fulltextsearchservice.exceptions.DocumentNotFound;
 import com.d1ff.fulltextsearchservice.kafka.consumer.eventStrategy.interfaces.MessageEventHandler;
-import com.d1ff.fulltextsearchservice.mapper.MessageEventMapper;
 import com.d1ff.fulltextsearchservice.repository.MessageDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +16,14 @@ public class DeletedHandler implements MessageEventHandler {
 
     @Override
     public void processEvent(MessageSentEvent messageEvent) {
-        MessageDocument message = messageDocumentRepository.findById(String.valueOf(messageEvent.getMessageId()))
-                .orElseThrow(() -> new DocumentNotFound("Message document not found for messageId: " + messageEvent.getMessageId()));
-        messageDocumentRepository.delete(message);
-        log.info("Deleted message: messageId={}, chatId={}",
-                message.getMessageId(), message.getChatId());
+    String messageId = String.valueOf(messageEvent.getMessageId());
+    if (!messageDocumentRepository.existsById(messageId)) {
+        log.warn("Delete event received for missing document: messageId={}", messageId);
+        return;
+    }
+
+    messageDocumentRepository.deleteById(messageId);
+    log.info("Deleted message document: messageId={}", messageId);
     }
 
     @Override

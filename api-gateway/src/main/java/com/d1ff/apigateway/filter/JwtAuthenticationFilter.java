@@ -55,8 +55,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     return unauthorizedResponse(exchange, "Authentication required");
                 }
             } else {
-                log.debug("No Bearer token found for path: {}, passing to next filter", path);
-                return chain.filter(exchange);
+                log.warn("No Bearer token found for path: {}", path);
+                return unauthorizedResponse(exchange, "Authentication required");
             }
         }
 

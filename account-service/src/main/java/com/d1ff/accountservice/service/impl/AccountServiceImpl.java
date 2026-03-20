@@ -38,6 +38,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse createAccount(UUID userId, String email, CreateAccountRequest request) {
         try {
+            if(accountRepository.findByEmail(email).isPresent()){
+                throw new AccountAlreadyExists("User with email:" + email + " already exists");
+            }
             Account account = createAccountRequestMapper.fromRequest(request, userId, email);
 
             if (request.file() != null) {
