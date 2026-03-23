@@ -259,5 +259,15 @@ MessengerMicroservices/
 └── README.md
 ```
 
+## (DEV) Покрытие аналитикой
+- Auth [x]
+- Message [ ]
+- Realtime [ ] // Скорее всего не пригодится
+- Mail [ ]
+- Fulltext
+- File
+- Chat
+- Account
+
 ---
 
