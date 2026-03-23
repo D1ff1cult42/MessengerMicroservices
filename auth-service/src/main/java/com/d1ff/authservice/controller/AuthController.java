@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.d1ff.authservice.dto.response.AuthResponse;
@@ -64,9 +66,16 @@ public class AuthController {
             }
     )
     @PostMapping("/register/multi_step")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Received registration request for email: {}", request.email());
-        AuthResponse response = authServiceImpl.register(request);
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest,
+                                                 HttpServletRequest request
+    ) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) ip = request.getRemoteAddr();
+
+        String userAgent = request.getHeader("User-Agent");
+
+        log.info("Received registration request for email: {}", registerRequest.email());
+        AuthResponse response = authServiceImpl.register(ip, userAgent, registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -108,9 +117,14 @@ public class AuthController {
             }
     )
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+                                              HttpServletRequest httpRequest) {
+        String ip = httpRequest.getHeader("X-Forwarded-For");
+        if (ip == null) ip = httpRequest.getRemoteAddr();
+        String userAgent = httpRequest.getHeader("User-Agent");
+
         log.info("Received login request for email: {}", request.email());
-        AuthResponse response = authServiceImpl.login(request);
+        AuthResponse response = authServiceImpl.login(ip, userAgent, request);
         return ResponseEntity.ok(response);
     }
 
@@ -152,8 +166,13 @@ public class AuthController {
             }
     )
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        AuthResponse response = authServiceImpl.refreshToken(request.refreshToken());
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request,
+                                                     HttpServletRequest httpRequest) {
+        String ip = httpRequest.getHeader("X-Forwarded-For");
+        if (ip == null) ip = httpRequest.getRemoteAddr();
+        String userAgent = httpRequest.getHeader("User-Agent");
+
+        AuthResponse response = authServiceImpl.refreshToken(ip, userAgent, request.refreshToken());
         return ResponseEntity.ok(response);
     }
 
@@ -183,8 +202,13 @@ public class AuthController {
             }
     )
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
-        authServiceImpl.logout(request.refreshToken());
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request,
+                                       HttpServletRequest httpRequest) {
+        String ip = httpRequest.getHeader("X-Forwarded-For");
+        if (ip == null) ip = httpRequest.getRemoteAddr();
+        String userAgent = httpRequest.getHeader("User-Agent");
+
+        authServiceImpl.logout(ip, userAgent, request.refreshToken());
         log.info("User logged out successfully");
         return ResponseEntity.noContent().build();
     }
@@ -215,8 +239,13 @@ public class AuthController {
             }
     )
     @PostMapping("/logout-all")
-    public ResponseEntity<Void> logoutAll(@RequestParam String email) {
-        authServiceImpl.logoutAll(email);
+    public ResponseEntity<Void> logoutAll(@RequestParam @Email String email,
+                                          HttpServletRequest httpRequest) {
+        String ip = httpRequest.getHeader("X-Forwarded-For");
+        if (ip == null) ip = httpRequest.getRemoteAddr();
+        String userAgent = httpRequest.getHeader("User-Agent");
+
+        authServiceImpl.logoutAll(ip, userAgent, email);
         log.info("User logged out all successfully");
         return ResponseEntity.noContent().build();
     }

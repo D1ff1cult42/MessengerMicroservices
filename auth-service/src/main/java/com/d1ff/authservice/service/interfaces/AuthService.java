@@ -8,17 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AuthService {
 
     @Transactional
-    AuthResponse register(RegisterRequest request);
+    AuthResponse register(String ip, String userAgent, RegisterRequest request);
 
     @Transactional
-    AuthResponse login(LoginRequest request);
+    AuthResponse login(String ip, String userAgent, LoginRequest request);
 
     @Transactional
-    AuthResponse refreshToken(String refreshTokenStr);
+    AuthResponse refreshToken(String ip, String userAgent, String refreshTokenStr);
 
     @Transactional
-    void logout(String refreshTokenStr);
+    void logout(String ip, String userAgent, String refreshTokenStr);
 
     @Transactional
-    void logoutAll(String email);
+    void logoutAll(String ip, String userAgent, String email);
 }

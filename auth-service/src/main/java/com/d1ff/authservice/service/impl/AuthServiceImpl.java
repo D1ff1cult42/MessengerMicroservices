@@ -1,5 +1,8 @@
 package com.d1ff.authservice.service.impl;
 
+import com.d1ff.authservice.analytic.enums.AnalyticEventType;
+import com.d1ff.authservice.analytic.factory.AnalyticPayloadFactory;
+import com.d1ff.authservice.kafka.producer.AnalyticSentProducerImpl;
 import com.d1ff.authservice.kafka.producer.EmailConfirmationProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private final AnalyticSentProducerImpl analyticSentProducer;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
@@ -36,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private Duration accessTokenExpiration;
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(String ip, String userAgent ,RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             log.warn("Registration attempt for existing email: {}", request.email());
             throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
@@ -52,6 +56,10 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
         log.info("New user registered: {}", user.getEmail());
 
+        //analytic
+        byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, user.getId(), AnalyticEventType.REGISTER);
+        analyticSentProducer.saveAnalytic(payload);
+
         //Kafka
         emailConfirmationProducer.sendEmailConfirmation(user.getId(), user.getEmail());
 
@@ -66,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponse login(String ip, String userAgent, LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
                     log.warn("Login attempt with non-existent email: {}", request.email());
@@ -87,6 +95,10 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         log.info("User logged in successfully: {}", user.getEmail());
 
+        //analytic
+        byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, user.getId(), AnalyticEventType.LOGIN);
+        analyticSentProducer.saveAnalytic(payload);
+
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
@@ -98,12 +110,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse refreshToken(String refreshTokenStr) {
+    public AuthResponse refreshToken(String ip, String userAgent, String refreshTokenStr) {
         RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
         refreshTokenService.verifyExpiration(refreshToken);
 
         User user = refreshToken.getUser();
         log.info("Token refreshed for user: {}", user.getEmail());
+
+        //analytic
+        byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, user.getId(), AnalyticEventType.REFRESH_TOKEN);
+        analyticSentProducer.saveAnalytic(payload);
 
         String accessToken = jwtService.generateToken(user);
 
@@ -118,16 +134,26 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String refreshTokenStr) {
+    public void logout(String ip, String userAgent, String refreshTokenStr) {
         RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
+
+        //analytic
+        byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, null, AnalyticEventType.LOGOUT);
+        analyticSentProducer.saveAnalytic(payload);
+
         log.info("User logged out: {}", refreshToken.getUser().getEmail());
         refreshTokenService.revokeToken(refreshToken);
     }
 
     @Override
-    public void logoutAll(String email) {
+    public void logoutAll(String ip, String userAgent, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        //analytic
+        byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, null, AnalyticEventType.LOGOUT_ALL);
+        analyticSentProducer.saveAnalytic(payload);
+
         log.info("All sessions terminated for user: {}", email);
         refreshTokenService.revokeAllUserTokens(user);
     }
