@@ -15,4 +15,5 @@ import java.util.Set;
 @Setter
 public class AnalyticConfigurationProperties {
     private Set<String> authEvents = new HashSet<>();
+    private Set<String> messageEvents = new HashSet<>();
 }

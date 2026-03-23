@@ -8,6 +8,11 @@ events:
     - LOGOUT_ALL
     - REFRESH_TOKEN
     - REGISTER
+  message-events:
+    - MESSAGE_SENT
+    - MESSAGE_UPDATED
+    - MESSAGE_DELETED
+    - MESSAGE_DELETED_BY_ADMIN
 
 spring:
   application:
