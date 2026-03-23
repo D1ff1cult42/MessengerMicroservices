@@ -1,11 +1,13 @@
 package com.d1ff.messageservice.kafka.producer;
 
+import com.d1ff.common.avro.AnalyticSentEvent;
 import com.d1ff.common.avro.EmailConfirmationEvent;
 import com.d1ff.common.avro.MessageSentEvent;
 import com.d1ff.messageservice.entity.OutboxEvent;
 import com.d1ff.messageservice.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,10 +29,9 @@ public class OutboxScheduler {
         List<OutboxEvent> outboxEvents = outboxEventRepository.findTop100BySentFalseOrderByCreatedAtAsc();
         for (OutboxEvent outboxEvent : outboxEvents) {
             try{
-                MessageSentEvent messageSentEvent = MessageSentEvent.
-                        fromByteBuffer(ByteBuffer.wrap(outboxEvent.getPayload()));
+                SpecificRecord event = deserialize(outboxEvent);
 
-                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), messageSentEvent)
+                kafkaTemplate.send(outboxEvent.getTopic(), outboxEvent.getAggregateId(), event)
                         .get();
                 outboxEvent.setSent(true);
 
@@ -40,5 +41,15 @@ public class OutboxScheduler {
             }
         }
     }
+
+    private SpecificRecord deserialize(OutboxEvent outboxEvent) throws Exception {
+        ByteBuffer payload = ByteBuffer.wrap(outboxEvent.getPayload());
+        return switch(outboxEvent.getTopic()){
+            case "message-sent" -> MessageSentEvent.fromByteBuffer(payload);
+            case "analytic-sent" -> AnalyticSentEvent.fromByteBuffer(payload);
+            default -> throw new IllegalStateException("Unknown topic: " + outboxEvent.getTopic());
+        };
+    }
 }
+
 
