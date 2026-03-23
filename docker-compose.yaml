@@ -570,6 +570,8 @@ services:
     depends_on:
       auth-service:
         condition: service_healthy
+      message-service:
+        condition: service_healthy
       kafka:
         condition: service_healthy
       schema-registry:

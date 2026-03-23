@@ -261,13 +261,13 @@ MessengerMicroservices/
 
 ## (DEV) Покрытие аналитикой
 - Auth [x]
-- Message [ ]
+- Message [x]
 - Realtime [ ] // Скорее всего не пригодится
-- Mail [ ]
-- Fulltext
-- File
-- Chat
-- Account
+- Mail [ ] // тож не нужно в теории
+- Fulltext [ ] // тоже бесполезно
+- File [ ] // бесполезно
+- Chat [ ]
+- Account [ ] // тоже, зачем аккаунт, когда есть аус?
 
 ---
 
