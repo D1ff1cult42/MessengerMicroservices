@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import com.d1ff.dto.response.ErrorResponse;
 import com.d1ff.messageservice.dto.response.MessageResponse;
@@ -61,11 +62,17 @@ public class MessageRestController {
             @Parameter(description = "Role of the user making the request(FOR DEBUG ONLY, THIS PARAMETER IS TAKEN FROM API-GATEWAY)", required = true)
             @RequestHeader("X-User-Role") String role,
             @Parameter(description = "ID of the message to delete", required = true)
-            @PathVariable Long messageId) {
+            @PathVariable Long messageId,
+            HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) ip = request.getRemoteAddr();
+
+        String userAgent = request.getHeader("User-Agent");
+
         if (role.equals("ADMIN")) {
-            messageService.deleteMessageForAdmin(messageId);
+            messageService.deleteMessageForAdmin(messageId, ip, userAgent);
         } else {
-            messageService.deleteMessage(userId, messageId);
+            messageService.deleteMessage(userId, messageId, ip, userAgent);
         }
         return ResponseEntity.noContent().build();
     }
@@ -114,8 +121,13 @@ public class MessageRestController {
             @Parameter(description = "ID of the message to update", required = true)
             @PathVariable Long messageId,
             @Parameter(description = "New content for the message", required = true)
-            @RequestBody String newContent) {
-        MessageResponse updatedMessage = messageService.updateMessage(userId,newContent, messageId);
+            @RequestBody String newContent,
+            HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) ip = request.getRemoteAddr();
+
+        String userAgent = request.getHeader("User-Agent");
+        MessageResponse updatedMessage = messageService.updateMessage(userId, newContent, messageId, ip, userAgent);
         return ResponseEntity.ok(updatedMessage);
     }
 

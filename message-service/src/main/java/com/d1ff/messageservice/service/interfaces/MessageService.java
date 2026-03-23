@@ -11,19 +11,27 @@ import java.util.UUID;
 public interface MessageService {
     //FOR AUTHOR
     @Transactional
-    MessageResponse sendMessage(CreateMessageRequest createMessageRequest, UUID userId);
+    MessageResponse sendMessage(CreateMessageRequest createMessageRequest, UUID userId,
+                                String ipAddress, String userAgent);
 
     //FOR AUTHOR
     @Transactional
-    void deleteMessage(UUID userId, Long messageId);
+    void deleteMessage(UUID userId, Long messageId,
+                       String ipAddress, String userAgent);
 
     //FOR ADMIN
     @Transactional
-    void deleteMessageForAdmin(Long messageId);
+    void deleteMessageForAdmin(Long messageId,
+                               String ipAddress,
+                               String userAgent);
 
     //FOR AUTHOR
     @Transactional
-    MessageResponse updateMessage(UUID userId, String newContent, Long messageId);
+    MessageResponse updateMessage(UUID userId,
+                                  String newContent,
+                                  Long messageId,
+                                  String ipAddress,
+                                  String userAgent);
 
     //FOR ADMIN
     @Transactional(readOnly = true)

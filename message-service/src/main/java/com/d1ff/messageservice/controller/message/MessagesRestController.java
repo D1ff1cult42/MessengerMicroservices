@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.d1ff.dto.response.ErrorResponse;
@@ -67,8 +68,13 @@ public class MessagesRestController {
             @Parameter(description = "Message data with optional attachments", required = true)
             @Valid @ModelAttribute CreateMessageRequest message,
             @Parameter(description = "ID of the user sending the message(FOR DEBUG ONLY, THIS PARAMETER IS TAKEN FROM API-GATEWAY)", required = true)
-            @RequestHeader("X-User-Id") UUID userId) {
-        MessageResponse messageResponse = messageService.sendMessage(message, userId);
+            @RequestHeader("X-User-Id") UUID userId,
+            HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) ip = request.getRemoteAddr();
+
+        String userAgent = request.getHeader("User-Agent");
+        MessageResponse messageResponse = messageService.sendMessage(message, userId, ip, userAgent);
         return ResponseEntity.created(URI.create("/api/messages/" + messageResponse.id()))
                 .body(messageResponse);
     }

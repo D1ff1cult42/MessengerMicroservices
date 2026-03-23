@@ -1,5 +1,8 @@
 package com.d1ff.messageservice.service.impl;
 
+import com.d1ff.messageservice.analytic.enums.AnalyticEventType;
+import com.d1ff.messageservice.analytic.factory.MessageAnalyticFactory;
+import com.d1ff.messageservice.kafka.producer.AnalyticSentProducerImpl;
 import com.d1ff.messageservice.kafka.producer.MessageSentProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +42,12 @@ public class MessageServiceImpl implements MessageService {
     private final MessageStatusService messageStatusService;
     private final FileTypeResolver fileTypeResolver;
     private final BucketResolver bucketResolver;
+    private final AnalyticSentProducerImpl analyticSentProducer;
 
     //FOR AUTHOR
     @Override
-    public MessageResponse sendMessage(CreateMessageRequest createMessageRequest, UUID userId) {
+    public MessageResponse sendMessage(CreateMessageRequest createMessageRequest, UUID userId,
+                                       String ipAddress, String userAgent) {
         if (!chatGrpcClient.isUserExistsInChat(userId, createMessageRequest.chatId())) {
             log.error("User {} is not a participant of the chat {}", userId, createMessageRequest.chatId());
             throw new AccessDeniedException("User is not a participant of the chat: " + createMessageRequest.chatId());
@@ -91,6 +96,10 @@ public class MessageServiceImpl implements MessageService {
         Message savedMessage = messageRepository.save(message);
         messageSentProducer.send(savedMessage, com.d1ff.common.avro.MessageType.CREATED);
 
+        //analytic
+        byte[] payload = MessageAnalyticFactory.createPayload(ipAddress, userAgent, AnalyticEventType.MESSAGE_SENT, savedMessage);
+        analyticSentProducer.saveAnalytic(payload);
+
         log.info("Message saved with ID {}. Initializing message statuses for all chat participants.", savedMessage.getId());
         messageStatusService.initializeStatusesForNewMessage(savedMessage);
 
@@ -101,7 +110,7 @@ public class MessageServiceImpl implements MessageService {
 
     //FOR AUTHOR
     @Override
-    public void deleteMessage(UUID userId, Long messageId) {
+    public void deleteMessage(UUID userId, Long messageId, String ipAddress, String userAgent) {
         log.info("Attempting to delete message with ID {} by user {}", messageId, userId);
         Message message = messageRepository.findByIdAndNotDeleted(messageId)
                 .orElseThrow(() -> new MessageNotFound("Message not found: " + messageId));
@@ -114,12 +123,17 @@ public class MessageServiceImpl implements MessageService {
         message.setDeletedAt(LocalDateTime.now());
         message.setDeleted(true);
         messageSentProducer.send(message, com.d1ff.common.avro.MessageType.DELETED);
+
+        //analytic
+        byte[] payload =  MessageAnalyticFactory.createPayload(ipAddress, userAgent, AnalyticEventType.MESSAGE_DELETED, message);
+        analyticSentProducer.saveAnalytic(payload);
+
         log.info("Message {} marked as deleted by user {}", messageId, userId);
     }
 
     //FOR ADMIN
     @Override
-    public void deleteMessageForAdmin(Long messageId){
+    public void deleteMessageForAdmin(Long messageId, String ipAddress, String userAgent) {
         log.info("Admin attempting to delete message with ID {}", messageId);
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFound("Message not found: " + messageId));
@@ -127,12 +141,18 @@ public class MessageServiceImpl implements MessageService {
         message.setDeletedAt(LocalDateTime.now());
         message.setDeleted(true);
         messageSentProducer.send(message, com.d1ff.common.avro.MessageType.DELETED);
+
+        //analytic
+        byte[] payload = MessageAnalyticFactory.createPayload(ipAddress, userAgent, AnalyticEventType.MESSAGE_DELETED_BY_ADMIN, message);
+        analyticSentProducer.saveAnalytic(payload);
+
         log.info("Message {} marked as deleted by admin", messageId);
     }
 
     //FOR AUTHOR
     @Override
-    public MessageResponse updateMessage(UUID userId, String newContent, Long messageId) {
+    public MessageResponse updateMessage(UUID userId, String newContent, Long messageId,
+                                         String ipAddress, String userAgent) {
 
         log.info("Attempting to update message with ID {} by user {}", messageId, userId);
         Message message = messageRepository.findByIdAndNotDeleted(messageId)
@@ -147,6 +167,10 @@ public class MessageServiceImpl implements MessageService {
         message.setIsEdited(true);
         message.setUpdatedAt(LocalDateTime.now());
         messageSentProducer.send(message, com.d1ff.common.avro.MessageType.UPDATED);
+
+        //analytic
+        byte[] payload = MessageAnalyticFactory.createPayload(ipAddress, userAgent, AnalyticEventType.MESSAGE_UPDATED, message);
+        analyticSentProducer.saveAnalytic(payload);
 
         log.info("Message with ID {} updated by user {}. New content: {}", messageId, userId, newContent);
         return messageResponseMapper.toMessageResponseWithUrl(message, fileService);
