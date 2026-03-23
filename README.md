@@ -258,16 +258,5 @@ MessengerMicroservices/
 ├── settings.gradle       # Multi-module настройки
 └── README.md
 ```
-
-## (DEV) Покрытие аналитикой
-- Auth [x]
-- Message [x]
-- Realtime [ ] // Скорее всего не пригодится
-- Mail [ ] // тож не нужно в теории
-- Fulltext [ ] // тоже бесполезно
-- File [ ] // бесполезно
-- Chat [ ]
-- Account [ ] // тоже, зачем аккаунт, когда есть аус?
-
 ---
 
