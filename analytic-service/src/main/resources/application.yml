@@ -1,1 +1,46 @@
-spring.application.name=analytic-service
+server:
+  port: 8090
+
+events:
+  auth-events:
+    - LOGIN
+    - LOGOUT
+    - LOGOUT_ALL
+    - REFRESH_TOKEN
+    - REGISTER
+
+spring:
+  application:
+    name: analytic-service
+
+  datasource:
+    url: jdbc:ch://${CLICKHOUSE_HOST:localhost}:8123/${CLICKHOUSE_DB:analytics}
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+    username: ${CLICKHOUSE_USER:default}
+    password: ${CLICKHOUSE_PASSWORD:}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+      specific.avro.reader: true
+    consumer:
+      group-id: analytic-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        max.poll.records: 50
+    listener:
+      ack-mode: manual
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+geoip:
+  database-path: ${GEOIP_DB_PATH:/etc/geoip/GeoLite2-Country.mmdb}
