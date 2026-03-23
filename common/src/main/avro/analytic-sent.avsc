@@ -1,0 +1,32 @@
+{
+  "name": "AnalyticSentEvent",
+  "namespace": "com.d1ff.common.avro",
+  "type": "record",
+  "doc": "Emitted by other service to sent analytic into ClickHouse Database",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Event id for analytic-sent event"
+    },
+    {
+      "name": "createdAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Timestamp of creation event"
+    },
+    {
+      "name": "payload",
+      "type":{
+        "type": "bytes",
+        "logicalType": "json"
+      },
+      "doc": "Payload of data for ClickHouse"
+    }
+  ]
+}
