@@ -11,3 +11,8 @@ scrape_configs:
       - targets: ['auth-service:8081']
     metrics_path: /actuator/prometheus
     scrape_interval: 10s
+  - job_name: message-service
+    static_configs:
+      - targets: [ 'message-service:8082' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
