@@ -16,3 +16,18 @@ scrape_configs:
       - targets: [ 'message-service:8082' ]
     metrics_path: /actuator/prometheus
     scrape_interval: 10s
+  - job_name: file-service
+    static_configs:
+      - targets: [ 'file-service:8083' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
+  - job_name: chat-service
+    static_configs:
+      - targets: [ 'chat-service:8084' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
+  - job_name: account-service
+    static_configs:
+      - targets: [ 'account-service:8085' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s

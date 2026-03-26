@@ -22,7 +22,7 @@ datasources:
         filterBySpanID: false
         tags:
           - key: service.name
-            value: service
+            value: compose_service
       tracesToMetrics:
         datasourceUid: prometheus
         tags:
@@ -40,7 +40,8 @@ datasources:
     jsonData:
       derivedFields:
         - name: TraceID
-          matcherRegex: '"traceId":"([a-f0-9]+)"'
+          matcherType: label
+          matcherRegex: trace_id
           url: '$${__value.raw}'
           datasourceUid: tempo
           urlDisplayLabel: "Open in Tempo"
