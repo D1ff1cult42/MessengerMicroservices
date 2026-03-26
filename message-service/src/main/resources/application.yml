@@ -38,11 +38,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           batch_size: 50
         order_inserts: true
@@ -93,10 +90,35 @@ spring:
 management:
   endpoint:
     health:
-      show-details: never
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: message-service
+      environment: ${ENVIRONMENT:local}
+    distribution:
+      percentiles-histogram:
+        http.server.request: true
+        spring.data.repository.invocations: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
+    metrics:
+      export:
+        enabled: false
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, prometheus, info, metrics
+logging:
+  pattern:
+    console: ""
+
 server:
   port: 8082
