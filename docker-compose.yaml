@@ -594,6 +594,84 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-remote-write-receiver'
+      - '--enable-feature=exemplar-storage'
+    networks:
+      - messenger-network
+
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/config.yml
+    networks:
+      - messenger-network
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    container_name: tempo
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./observability/tempo/tempo.yml:/etc/tempo/config.yml:ro
+      - tempo_data:/var/tempo
+    command: -config.file=/etc/tempo/config.yml
+    networks:
+      - messenger-network
+
+  alloy:
+    image: grafana/alloy:v1.7.4
+    container_name: alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    depends_on:
+      - loki
+      - tempo
+    networks:
+      - messenger-network
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceToMetrics
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+      - alloy
+    networks:
+      - messenger-network
+
+
 
 networks:
   messenger-network:
@@ -604,3 +682,7 @@ volumes:
   elasticsearch_data:
   kafka_data:
   clickhouse_data:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
