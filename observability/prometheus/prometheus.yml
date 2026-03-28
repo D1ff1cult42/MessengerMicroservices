@@ -51,3 +51,8 @@ scrape_configs:
       - targets: [ 'analytic-service:8090' ]
     metrics_path: /actuator/prometheus
     scrape_interval: 10s
+  - job_name: api-gateway
+    static_configs:
+      - targets: [ 'api-gateway:8080' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
