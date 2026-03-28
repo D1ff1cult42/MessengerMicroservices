@@ -3,6 +3,7 @@ package com.d1ff.realtimegateway.service.impl;
 import com.d1ff.common.avro.MessageDeliveredEvent;
 import com.d1ff.common.avro.MessageSentEvent;
 import com.d1ff.realtimegateway.dto.response.EventType;
+import com.d1ff.realtimegateway.dto.response.MessageResponse;
 import com.d1ff.realtimegateway.dto.response.WsResponse;
 import com.d1ff.realtimegateway.kafka.producer.MessageDeliveredProducer;
 import com.d1ff.realtimegateway.service.interfaces.RealtimeMessageService;
@@ -37,9 +38,18 @@ public class RealtimeMessageServiceImpl implements RealtimeMessageService {
     @Override
     public void handleMessageSent(MessageSentEvent event){
         log.info("Новое сообщение в чате {}: messageId={}", event.getChatId(), event.getMessageId());
+        MessageResponse messageResponse = new MessageResponse(
+                event.getEventId(),
+                event.getChatId(),
+                event.getSenderId(),
+                event.getMessageId(),
+                event.getContent() != null ? event.getContent().toString() : null,
+                event.getMessageType().name(),
+                event.getTimestamp().toEpochMilli()
+        );
         WsResponse response = new WsResponse(
                 EventType.MESSAGE,
-                event,
+                messageResponse,
                 LocalDateTime.now()
         );
 

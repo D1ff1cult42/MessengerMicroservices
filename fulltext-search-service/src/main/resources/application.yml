@@ -50,7 +50,7 @@ management:
       environment: ${ENVIRONMENT:local}
     distribution:
       percentiles-histogram:
-        http.server.request: true
+        http.server.requests: true
         spring.data.repository.invocations: true
       percentiles:
         http.server.requests: 0.5, 0.95, 0.99
