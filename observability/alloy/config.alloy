@@ -23,35 +23,38 @@ loki.source.docker "docker_logs" {
     forward_to = [loki.process.parse_json.receiver]
 }
 
+
 loki.process "parse_json" {
     forward_to = [loki.write.loki.receiver]
 
-stage.json {
-      expressions = {
-        level      = "level",
-        trace_id   = "traceId",
-        span_id    = "spanId",
-        service    = "service",
-        message    = "message",
-        logger     = "logger_name",
+    stage.match {
+        selector = `{compose_service=~"auth-service|message-service|file-service|chat-service|account-service|realtime-gateway|fulltext-search-service|mail-service|analytic-service|api-gateway"}`
+        stage.json {
+            expressions = {
+                level    = "level",
+                trace_id = "traceId",
+                span_id  = "spanId",
+                service  = "service",
+                message  = "message",
+                logger   = "logger_name",
+            }
+        }
+        stage.labels {
+            values = {
+            level    = "level",
+            trace_id = "trace_id",
+            service  = "service",
+            }
+        }
+      stage.output {
+        source = "message"
       }
-    }
+   }
+}
 
-    stage.labels {
-      values = {
-        level    = "level",
-        trace_id = "trace_id",
-        service  = "service",
-      }
-    }
 
-    stage.output {
-      source = "message"
-    }
-  }
-
-  loki.write "loki" {
+loki.write "loki" {
     endpoint {
-      url = "http://loki:3100/loki/api/v1/push"
+        url = "http://loki:3100/loki/api/v1/push"
     }
-  }
+}
