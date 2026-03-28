@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class JsonUtils {
-    private static final ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     public static byte[] toBytes(Object payload) {
         try{
-            return mapper.writeValueAsBytes(payload);
+            return OBJECT_MAPPER.writeValueAsBytes(payload);
         }catch(JsonProcessingException e){
             throw new RuntimeException(e);
         }
