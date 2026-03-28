@@ -46,3 +46,8 @@ scrape_configs:
       - targets: [ 'mail-service:8088' ]
     metrics_path: /actuator/prometheus
     scrape_interval: 10s
+  - job_name: analytic-service
+    static_configs:
+      - targets: [ 'analytic-service:8090' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
