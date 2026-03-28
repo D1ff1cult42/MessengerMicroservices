@@ -31,3 +31,8 @@ scrape_configs:
       - targets: [ 'account-service:8085' ]
     metrics_path: /actuator/prometheus
     scrape_interval: 10s
+  - job_name: realtime-gateway
+    static_configs:
+      - targets: [ 'realtime-gateway:8086' ]
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
