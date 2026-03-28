@@ -77,3 +77,43 @@ springwolf:
       stomp-server:
         protocol: stomp
         host: localhost:8086/ws
+
+management:
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: realtime-gateway
+      environment: ${ENVIRONMENT:local}
+    distribution:
+      percentiles-histogram:
+        http.server.request: true
+        spring.data.repository.invocations: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      enabled: true
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://tempo:4318/v1/traces
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info, metrics
+logging:
+  level:
+    io.opentelemetry: WARN
+  pattern:
+    console: ""
