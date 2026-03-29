@@ -704,6 +704,17 @@ services:
     networks: [messenger-network]
     restart: unless-stopped
 
+  elasticsearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.8.0
+    command:
+      - --es.uri=http://elasticsearch:9200
+      - --es.all
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks: [ messenger-network ]
+    restart: unless-stopped
+
 
 
 networks:

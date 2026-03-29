@@ -70,3 +70,6 @@ scrape_configs:
     metrics_path: /minio/v2/metrics/cluster
     static_configs:
       - targets: ['minio:9000']
+  - job_name: elasticsearch
+    static_configs:
+      - targets: [ 'elasticsearch-exporter:9114' ]
