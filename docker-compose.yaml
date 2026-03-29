@@ -683,6 +683,17 @@ services:
       - messenger-network
     restart: unless-stopped
 
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.67.0
+    environment:
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks: [ messenger-network ]
+    restart: unless-stopped
+
 
 
 
