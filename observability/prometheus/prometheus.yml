@@ -66,4 +66,7 @@ scrape_configs:
   - job_name: kafka
     static_configs:
       - targets: [ 'kafka-exporter:9308' ]
-
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ['minio:9000']
