@@ -532,6 +532,7 @@ services:
     container_name: messenger-clickhouse
     ports:
       - "8123:8123"
+      - "9363:9363"
     environment:
       CLICKHOUSE_DB: ${CLICKHOUSE_DB}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER}
@@ -539,6 +540,7 @@ services:
     volumes:
       - clickhouse_data:/var/lib/clickhouse
       - ./clickhouse-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./observability/clickhouse/prometheus.xml:/etc/clickhouse-server/config.d/prometheus.xml:ro
     networks:
       - messenger-network
     deploy:
