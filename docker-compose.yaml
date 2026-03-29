@@ -694,6 +694,14 @@ services:
     networks: [ messenger-network ]
     restart: unless-stopped
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.8.0
+    command: --kafka.server=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks: [messenger-network]
+    restart: unless-stopped
 
 
 
