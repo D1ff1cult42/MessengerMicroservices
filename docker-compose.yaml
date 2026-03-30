@@ -305,7 +305,12 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     depends_on:
+      redis:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       auth-service:

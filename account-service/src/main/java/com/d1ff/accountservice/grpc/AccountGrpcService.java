@@ -2,6 +2,7 @@ package com.d1ff.accountservice.grpc;
 
 import com.d1ff.accountservice.entity.Account;
 import com.d1ff.accountservice.repository.AccountRepository;
+import com.d1ff.accountservice.service.interfaces.AccountCacheService;
 import com.d1ff.common.grpc.account.AccountGrpcServiceGrpc;
 import com.d1ff.common.grpc.account.GetAccountByEmailRequest;
 import com.d1ff.common.grpc.account.GetAccountByEmailResponse;
@@ -11,12 +12,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
+import java.util.Optional;
+
 @GrpcService
 @RequiredArgsConstructor
 @Slf4j
 public class AccountGrpcService extends AccountGrpcServiceGrpc.AccountGrpcServiceImplBase {
 
-    private final AccountRepository accountRepository;
+    private final AccountCacheService accountCacheService;
 
     @Override
     public void getAccountByEmail(GetAccountByEmailRequest request,
@@ -32,15 +35,16 @@ public class AccountGrpcService extends AccountGrpcServiceGrpc.AccountGrpcServic
                 return;
             }
 
-            Account account = accountRepository.findByEmail(email).orElse(null);
+            Optional<Account> accountOpt = accountCacheService.findByEmail(email);
 
-            if (account == null) {
+            if (accountOpt.isEmpty()) {
                 responseObserver.onError(Status.NOT_FOUND
                         .withDescription("Account not found for email: " + email)
                         .asRuntimeException());
                 return;
             }
 
+            Account account = accountOpt.get();
             GetAccountByEmailResponse.Builder builder = GetAccountByEmailResponse.newBuilder()
                     .setUserId(account.getUserId().toString())
                     .setUsername(account.getUsername() != null ? account.getUsername() : "");

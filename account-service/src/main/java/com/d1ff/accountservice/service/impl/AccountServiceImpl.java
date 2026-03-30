@@ -12,6 +12,7 @@ import com.d1ff.accountservice.mapper.request.CreateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.request.UpdateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.response.AccountResponseMapper;
 import com.d1ff.accountservice.repository.AccountRepository;
+import com.d1ff.accountservice.service.interfaces.AccountCacheService;
 import com.d1ff.accountservice.service.interfaces.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.UUID;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final AccountCacheService accountCacheService;
     private final CreateAccountRequestMapper createAccountRequestMapper;
     private final AccountResponseMapper accountResponseMapper;
     private final UpdateAccountRequestMapper updateAccountRequestMapper;
@@ -38,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse createAccount(UUID userId, String email, CreateAccountRequest request) {
         try {
-            if(accountRepository.findByEmail(email).isPresent()){
+            if(accountCacheService.findByEmail(email).isPresent()){
                 throw new AccountAlreadyExists("User with email:" + email + " already exists");
             }
             Account account = createAccountRequestMapper.fromRequest(request, userId, email);
@@ -72,6 +74,8 @@ public class AccountServiceImpl implements AccountService {
             account.setAvatarBucketName(fileUploadResponse.bucketName());
             account.setAvatarObjectName(fileUploadResponse.objectName());
         }
+        accountRepository.save(account);
+        accountCacheService.evict(account);
 
         return accountResponseMapper.toResponse(account, fileService);
     }
@@ -82,6 +86,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(userId)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found for user: " + userId));
         accountRepository.delete(account);
+        accountCacheService.evict(account);
 
         //kafka account->auth producer
         log.info("Sent to kafka producer(outbox-table) for account of user {}", userId);
@@ -97,14 +102,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse getAccountByEmail(GetAccountByEmailRequest request) {
-        Account account = accountRepository.findByEmail(request.email())
+        Account account = accountCacheService.findByEmail(request.email())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found for email: " + request.email()));
         log.info("Getting account for user {}", account.getUserId());
         return accountResponseMapper.toResponse(account, fileService);
     }
 
     private Account getOrCreateAccount(UUID userId, String email) {
-        return accountRepository.findById(userId)
+        return accountCacheService.findById(userId)
                 .orElseGet(() -> accountRepository.save(
                         Account.builder()
                                 .userId(userId)
