@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.d1ff.authservice.dto.response.AuthResponse;
 import com.d1ff.authservice.dto.request.LoginRequest;
 import com.d1ff.authservice.dto.request.RegisterRequest;
-import com.d1ff.authservice.entity.RefreshToken;
 import com.d1ff.authservice.entity.User;
 import com.d1ff.authservice.exception.InvalidCredentialsException;
 import com.d1ff.authservice.exception.UserAlreadyExistsException;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -64,11 +64,11 @@ public class AuthServiceImpl implements AuthService {
         emailConfirmationProducer.sendEmailConfirmation(user.getId(), user.getEmail());
 
         String accessToken = jwtService.generateToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
+                .refreshToken(refreshToken)
                 .expiresIn(accessTokenExpiration.toSeconds())
                 .build();
     }
@@ -100,21 +100,21 @@ public class AuthServiceImpl implements AuthService {
         analyticSentProducer.saveAnalytic(payload);
 
         String accessToken = jwtService.generateToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
+                .refreshToken(refreshToken)
                 .expiresIn(accessTokenExpiration.toSeconds())
                 .build();
     }
 
     @Override
     public AuthResponse refreshToken(String ip, String userAgent, String refreshTokenStr) {
-        RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
-        refreshTokenService.verifyExpiration(refreshToken);
+        String userId = refreshTokenService.findByToken(refreshTokenStr);
+        User user = userRepository.findById(UUID.fromString(userId))
+                        .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
-        User user = refreshToken.getUser();
         log.info("Token refreshed for user: {}", user.getEmail());
 
         //analytic
@@ -123,26 +123,28 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtService.generateToken(user);
 
-        refreshTokenService.revokeToken(refreshToken);
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+        refreshTokenService.revokeToken(refreshTokenStr);
+        String newRefreshToken = refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(newRefreshToken.getToken())
+                .refreshToken(newRefreshToken)
                 .expiresIn(accessTokenExpiration.toSeconds())
                 .build();
     }
 
     @Override
     public void logout(String ip, String userAgent, String refreshTokenStr) {
-        RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
+        String userId = refreshTokenService.findByToken(refreshTokenStr);
+        User user = userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
         //analytic
         byte[] payload = AnalyticPayloadFactory.createPayload(ip, userAgent, null, AnalyticEventType.LOGOUT);
         analyticSentProducer.saveAnalytic(payload);
 
-        log.info("User logged out: {}", refreshToken.getUser().getEmail());
-        refreshTokenService.revokeToken(refreshToken);
+        log.info("User logged out: {}", user.getEmail());
+        refreshTokenService.revokeToken(refreshTokenStr);
     }
 
     @Override

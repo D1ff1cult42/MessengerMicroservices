@@ -227,12 +227,17 @@ services:
       REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
       kafka:
         condition: service_healthy
       schema-registry:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - messenger-network
