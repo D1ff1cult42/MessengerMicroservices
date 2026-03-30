@@ -9,6 +9,7 @@ import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +23,9 @@ public class GrpcFileServiceImpl extends FileGrpcServiceGrpc.FileGrpcServiceImpl
 
     private final MinioProperties minioProperties;
     private final MinioClient minioClient;
+
+    @Qualifier("presignedMinioClient")
+    private final MinioClient presignedMinioClient;
 
     @Override
     public StreamObserver<UploadFileRequest> uploadFile(StreamObserver<UploadFileResponse> responseObserver) {
@@ -123,7 +127,7 @@ public class GrpcFileServiceImpl extends FileGrpcServiceGrpc.FileGrpcServiceImpl
 
             Duration expiration = minioProperties.getPresignedUrlExpiration(bucketName);
 
-            String url = minioClient.getPresignedObjectUrl(
+            String url = presignedMinioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucketName)
