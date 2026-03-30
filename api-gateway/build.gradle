@@ -38,9 +38,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.2'
     implementation("com.bucket4j:bucket4j_jdk17-core:8.16.1")
-    implementation("com.bucket4j:bucket4j-caffeine:8.10.1")
     implementation 'io.lettuce:lettuce-core'
-    implementation "com.github.ben-manes.caffeine:caffeine:3.2.3"
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
