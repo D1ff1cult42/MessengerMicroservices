@@ -1,6 +1,8 @@
 package com.d1ff.apigateway.filter;
 
 import com.d1ff.apigateway.service.interfaces.JwtService;
+import com.d1ff.dto.response.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -13,10 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Component
@@ -25,6 +29,7 @@ import java.util.List;
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtService jwtService;
+    private final ObjectMapper objectMapper;
 
     private static final List<String> OPEN_PATHS = List.of(
             "/actuator", "/api/auth", "/api/mail", "/swagger", "/swagger-ui", "/v3/api-docs",
@@ -87,14 +92,32 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
+    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String
+            message) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        byte[] bytes = ("{\"error\": \"" + message + "\"}").getBytes(StandardCharsets.UTF_8);
-        DataBuffer buffer = response.bufferFactory().wrap(bytes);
-        return response.writeWith(Mono.just(buffer));
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(message)
+                .error("Unauthorized")
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .path(exchange.getRequest().getURI().getPath())
+                .build();
+
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);
+            DataBuffer buffer = response.bufferFactory().wrap(bytes);
+            return response.writeWith(Mono.just(buffer));
+        } catch (Exception e) {
+            byte[] bytes = ("{\"error\": \"" + message +
+                    "\"}").getBytes(StandardCharsets.UTF_8);
+            DataBuffer buffer = response.bufferFactory().wrap(bytes);
+            return response.writeWith(Mono.just(buffer));
+        }
     }
+
 
     @Override
     public int getOrder() {
