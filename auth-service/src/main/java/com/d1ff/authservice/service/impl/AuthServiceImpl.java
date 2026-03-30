@@ -4,6 +4,7 @@ import com.d1ff.authservice.analytic.enums.AnalyticEventType;
 import com.d1ff.authservice.analytic.factory.AnalyticPayloadFactory;
 import com.d1ff.authservice.kafka.producer.AnalyticSentProducerImpl;
 import com.d1ff.authservice.kafka.producer.EmailConfirmationProducer;
+import com.d1ff.authservice.kafka.producer.UserRegisteredProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.d1ff.authservice.dto.response.AuthResponse;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private final AnalyticSentProducerImpl analyticSentProducer;
+    private final UserRegisteredProducer userRegisteredProducer;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
@@ -62,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
 
         //Kafka
         emailConfirmationProducer.sendEmailConfirmation(user.getId(), user.getEmail());
+        userRegisteredProducer.sendUserRegistered(user.getId(), user.getEmail(), request.username());
 
         String accessToken = jwtService.generateToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user);

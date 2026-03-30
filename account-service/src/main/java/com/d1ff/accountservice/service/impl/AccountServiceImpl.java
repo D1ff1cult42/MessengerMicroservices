@@ -1,14 +1,11 @@
 package com.d1ff.accountservice.service.impl;
 
-import com.d1ff.accountservice.dto.request.CreateAccountRequest;
 import com.d1ff.accountservice.dto.request.GetAccountByEmailRequest;
 import com.d1ff.accountservice.dto.request.UpdateAccountRequest;
 import com.d1ff.accountservice.dto.response.AccountResponse;
 import com.d1ff.accountservice.entity.Account;
-import com.d1ff.accountservice.exceptions.AccountAlreadyExists;
 import com.d1ff.accountservice.exceptions.AccountNotFoundException;
 import com.d1ff.accountservice.kafka.producer.AccountDeletedProducer;
-import com.d1ff.accountservice.mapper.request.CreateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.request.UpdateAccountRequestMapper;
 import com.d1ff.accountservice.mapper.response.AccountResponseMapper;
 import com.d1ff.accountservice.repository.AccountRepository;
@@ -19,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.d1ff.bucket.BucketResolver;
 import com.d1ff.dto.response.FileUploadResponse;
 import com.d1ff.grpc.client.file.FileGrpcClient;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -30,7 +26,6 @@ import java.util.UUID;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountCacheService accountCacheService;
-    private final CreateAccountRequestMapper createAccountRequestMapper;
     private final AccountResponseMapper accountResponseMapper;
     private final UpdateAccountRequestMapper updateAccountRequestMapper;
     private final AccountDeletedProducer accountDeletedProducer;
@@ -38,32 +33,9 @@ public class AccountServiceImpl implements AccountService {
     private final FileGrpcClient fileService;
 
     @Override
-    public AccountResponse createAccount(UUID userId, String email, CreateAccountRequest request) {
-        try {
-            if(accountCacheService.findByEmail(email).isPresent()){
-                throw new AccountAlreadyExists("User with email:" + email + " already exists");
-            }
-            Account account = createAccountRequestMapper.fromRequest(request, userId, email);
-
-            if (request.file() != null) {
-                log.info("Uploading avatar for account of user {}", userId);
-                FileUploadResponse fileUploadResponse = fileService.uploadFile(
-                        bucketResolver.resolveBucket(request.file().getOriginalFilename()),
-                        request.file());
-                account.setAvatarBucketName(fileUploadResponse.bucketName());
-                account.setAvatarObjectName(fileUploadResponse.objectName());
-            }
-
-            accountRepository.save(account);
-            return accountResponseMapper.toResponse(account, fileService);
-        } catch (DataIntegrityViolationException ex) {
-            throw new AccountAlreadyExists("User with email:" + email + " already exists");
-        }
-    }
-
-    @Override
     public AccountResponse updateAccount(UUID userId, String email, UpdateAccountRequest request) {
-        Account account = getOrCreateAccount(userId, email);
+        Account account = accountCacheService.findById(userId)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found for user: " + userId));
         updateAccountRequestMapper.updateFromRequest(account, request);
 
         if (request.file() != null) {
@@ -95,8 +67,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse getAccount(UUID userId, String email) {
-        Account account = getOrCreateAccount(userId, email);
-        log.info("Getting account for user {}", userId);
+        Account account = accountCacheService.findById(userId)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found for user: " + userId));
         return accountResponseMapper.toResponse(account, fileService);
     }
 
@@ -104,17 +76,18 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponse getAccountByEmail(GetAccountByEmailRequest request) {
         Account account = accountCacheService.findByEmail(request.email())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found for email: " + request.email()));
-        log.info("Getting account for user {}", account.getUserId());
         return accountResponseMapper.toResponse(account, fileService);
     }
 
-    private Account getOrCreateAccount(UUID userId, String email) {
-        return accountCacheService.findById(userId)
-                .orElseGet(() -> accountRepository.save(
-                        Account.builder()
-                                .userId(userId)
-                                .email(email)
-                                .build()
-                ));
+    @Override
+    public void createAccountFromEvent(UUID userId, String email, String username) {
+        if (accountRepository.existsById(userId)) return;
+        Account account = Account.builder()
+                .userId(userId)
+                .email(email)
+                .username(username)
+                .build();
+        accountRepository.save(account);
+        log.info("Account created from UserRegisteredEvent for userId={}", userId);
     }
 }

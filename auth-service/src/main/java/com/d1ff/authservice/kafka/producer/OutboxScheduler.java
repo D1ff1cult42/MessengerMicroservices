@@ -4,6 +4,7 @@ import com.d1ff.authservice.entity.OutboxEvent;
 import com.d1ff.authservice.repository.OutboxEventRepository;
 import com.d1ff.common.avro.AnalyticSentEvent;
 import com.d1ff.common.avro.EmailConfirmationEvent;
+import com.d1ff.common.avro.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
@@ -46,6 +47,7 @@ public class OutboxScheduler {
         return switch(outboxEvent.getTopic()){
             case "email-confirmation" -> EmailConfirmationEvent.fromByteBuffer(payload);
             case "analytic-sent" -> AnalyticSentEvent.fromByteBuffer(payload);
+            case "user-registered" -> UserRegisteredEvent.fromByteBuffer(payload);
             default -> throw new IllegalStateException("Unknown topic: " + outboxEvent.getTopic());
         };
     }

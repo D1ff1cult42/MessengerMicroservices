@@ -1,0 +1,34 @@
+{
+  "type": "record",
+  "name": "UserRegisteredEvent",
+  "namespace": "com.d1ff.common.avro",
+  "doc": "Event emitted by auth-service when a new user registers",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": { "type": "string", "logicalType": "uuid" },
+      "doc": "Unique event ID for idempotency"
+    },
+    {
+      "name": "userId",
+      "type": { "type": "string", "logicalType": "uuid" },
+      "doc": "UUID of registered user"
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "doc": "Email of registered user"
+    },
+    {
+      "name": "username",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Desired username, nullable"
+    },
+    {
+      "name": "timestamp",
+      "type": { "type": "long", "logicalType": "timestamp-millis" },
+      "doc": "Event creation timestamp in epoch millis"
+    }
+  ]
+}

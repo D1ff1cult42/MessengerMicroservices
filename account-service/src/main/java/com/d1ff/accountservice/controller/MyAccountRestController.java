@@ -1,6 +1,5 @@
 package com.d1ff.accountservice.controller;
 
-import com.d1ff.accountservice.dto.request.CreateAccountRequest;
 import com.d1ff.accountservice.dto.request.UpdateAccountRequest;
 import com.d1ff.accountservice.dto.response.AccountResponse;
 import com.d1ff.accountservice.service.interfaces.AccountService;
@@ -126,53 +125,5 @@ public class MyAccountRestController {
             @RequestHeader("X-User-Email") String email,
             @RequestBody @Valid UpdateAccountRequest request) {
         return ResponseEntity.ok(accountService.updateAccount(userId, email, request));
-    }
-
-    @Operation(summary = "Create account (multi-step)",
-            description = "Create a full account profile for the authenticated user including optional avatar upload. " +
-                    "Use this endpoint after registration to set up a username and profile picture.",
-            responses = {
-                @ApiResponse(
-                    responseCode = "200",
-                    description = "Account created successfully",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                        mediaType = "application/json",
-                        schema = @Schema(implementation = AccountResponse.class)
-                    )
-                ),
-                @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input data",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                        mediaType = "application/json",
-                        schema = @Schema(implementation = ErrorResponse.class)
-                    )
-                ),
-                @ApiResponse(
-                    responseCode = "409",
-                    description = "Account already exists for this user",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                        mediaType = "application/json",
-                        schema = @Schema(implementation = ErrorResponse.class)
-                    )
-                ),
-                @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                        mediaType = "application/json",
-                        schema = @Schema(implementation = ErrorResponse.class)
-                    )
-                )
-            }
-    )
-    @PostMapping("/multi_step")
-    public ResponseEntity<AccountResponse> createAccount(
-            @Parameter(description = "ID of the authenticated user (forwarded by API Gateway)", required = true)
-            @RequestHeader("X-User-Id") UUID userId,
-            @Parameter(description = "Email of the authenticated user (forwarded by API Gateway)", required = true)
-            @RequestHeader("X-User-Email") String email,
-            @RequestBody @Valid CreateAccountRequest request) {
-        return ResponseEntity.ok(accountService.createAccount(userId, email, request));
     }
 }

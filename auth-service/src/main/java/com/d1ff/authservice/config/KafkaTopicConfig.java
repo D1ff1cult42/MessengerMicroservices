@@ -27,4 +27,23 @@ public class KafkaTopicConfig {
                 .config(TopicConfig.RETENTION_MS_CONFIG, "604800000")
                 .build();
     }
+
+    public NewTopic userRegisteredTopic() {
+        return TopicBuilder.name("user-registered")
+                .partitions(3)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "604800000")
+                .config(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "1")
+                .config(TopicConfig.CLEANUP_POLICY_CONFIG, "delete")
+                .build();
+    }
+
+    @Bean
+    public NewTopic userRegisteredDltTopic() {
+        return TopicBuilder.name("user-registered-dlt")
+                .partitions(3)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "604800000")
+                .build();
+    }
 }

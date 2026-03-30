@@ -52,41 +52,122 @@
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
-    { "key": "kafkaUiUrl", "value": "http://localhost:8089" },
-    { "key": "kafkaCluster", "value": "kraft-kafka" },
-    { "key": "kafkaPerPage", "value": "30" },
-
-    { "key": "runId", "value": "" },
-
-    { "key": "userAEmail", "value": "" },
-    { "key": "userAPassword", "value": "StrongPass123!" },
-    { "key": "userAName", "value": "" },
-    { "key": "userAId", "value": "" },
-    { "key": "userARole", "value": "" },
-    { "key": "accessTokenA", "value": "" },
-    { "key": "refreshTokenA", "value": "" },
-
-    { "key": "userBEmail", "value": "" },
-    { "key": "userBPassword", "value": "StrongPass123!" },
-    { "key": "userBName", "value": "" },
-    { "key": "userBId", "value": "" },
-    { "key": "userBRole", "value": "" },
-    { "key": "accessTokenB", "value": "" },
-    { "key": "refreshTokenB", "value": "" },
-
-    { "key": "adminAccessToken", "value": "" },
-
-    { "key": "groupChatId", "value": "" },
-    { "key": "oneToOneChatId", "value": "" },
-    { "key": "messageId", "value": "" },
-    { "key": "fulltextMessageId", "value": "" },
-    { "key": "fulltextTermV1", "value": "" },
-    { "key": "fulltextTermV2", "value": "" },
-    { "key": "searchNeedle", "value": "" },
-
-    { "key": "confirmToken", "value": "PUT_VALID_TOKEN_HERE" },
-    { "key": "expectedKafkaRegex", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "kafkaUiUrl",
+      "value": "http://localhost:8089"
+    },
+    {
+      "key": "kafkaCluster",
+      "value": "kraft-kafka"
+    },
+    {
+      "key": "kafkaPerPage",
+      "value": "30"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "userAEmail",
+      "value": ""
+    },
+    {
+      "key": "userAPassword",
+      "value": "StrongPass123!"
+    },
+    {
+      "key": "userAName",
+      "value": ""
+    },
+    {
+      "key": "userAId",
+      "value": ""
+    },
+    {
+      "key": "userARole",
+      "value": ""
+    },
+    {
+      "key": "accessTokenA",
+      "value": ""
+    },
+    {
+      "key": "refreshTokenA",
+      "value": ""
+    },
+    {
+      "key": "userBEmail",
+      "value": ""
+    },
+    {
+      "key": "userBPassword",
+      "value": "StrongPass123!"
+    },
+    {
+      "key": "userBName",
+      "value": ""
+    },
+    {
+      "key": "userBId",
+      "value": ""
+    },
+    {
+      "key": "userBRole",
+      "value": ""
+    },
+    {
+      "key": "accessTokenB",
+      "value": ""
+    },
+    {
+      "key": "refreshTokenB",
+      "value": ""
+    },
+    {
+      "key": "adminAccessToken",
+      "value": ""
+    },
+    {
+      "key": "groupChatId",
+      "value": ""
+    },
+    {
+      "key": "oneToOneChatId",
+      "value": ""
+    },
+    {
+      "key": "messageId",
+      "value": ""
+    },
+    {
+      "key": "fulltextMessageId",
+      "value": ""
+    },
+    {
+      "key": "fulltextTermV1",
+      "value": ""
+    },
+    {
+      "key": "fulltextTermV2",
+      "value": ""
+    },
+    {
+      "key": "searchNeedle",
+      "value": ""
+    },
+    {
+      "key": "confirmToken",
+      "value": "PUT_VALID_TOKEN_HERE"
+    },
+    {
+      "key": "expectedKafkaRegex",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -154,12 +235,17 @@
           "name": "Register User A (201 or 409)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"{{userAPassword}}\"\n}"
+              "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"{{userAPassword}}\",\n  \"username\": \"{{userAName}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/auth/register/multi_step"
+            "url": "{{baseUrl}}/api/auth/register"
           },
           "event": [
             {
@@ -182,12 +268,17 @@
           "name": "Register User B (201 or 409)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\"\n}"
+              "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\",\n  \"username\": \"{{userBName}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/auth/register/multi_step"
+            "url": "{{baseUrl}}/api/auth/register"
           },
           "event": [
             {
@@ -205,90 +296,191 @@
           "name": "Register Invalid Email (400)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"bad-email\",\n  \"password\": \"12345678\"\n}"
             },
-            "url": "{{baseUrl}}/api/auth/register/multi_step"
+            "url": "{{baseUrl}}/api/auth/register"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400 or 429', function(){ pm.expect([400,429]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400 or 429', function(){ pm.expect([400,429]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Login User A (200)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"{{userAPassword}}\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"{{userAPassword}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/login"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 200 or 429', function(){ pm.expect([200,429]).to.include(pm.response.code); });",
-            "if (pm.response.code === 200) {",
-            "  var r = pm.response.json();",
-            "  pm.collectionVariables.set('accessTokenA', r.accessToken || '');",
-            "  pm.collectionVariables.set('refreshTokenA', r.refreshToken || '');",
-            "  var token = r.accessToken || '';",
-            "  if (token.split('.').length === 3) {",
-            "    var payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
-            "    pm.collectionVariables.set('userAId', payload.userId || '');",
-            "    pm.collectionVariables.set('userARole', payload.role || '');",
-            "  }",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 429', function(){ pm.expect([200,429]).to.include(pm.response.code); });",
+                  "if (pm.response.code === 200) {",
+                  "  var r = pm.response.json();",
+                  "  pm.collectionVariables.set('accessTokenA', r.accessToken || '');",
+                  "  pm.collectionVariables.set('refreshTokenA', r.refreshToken || '');",
+                  "  var token = r.accessToken || '';",
+                  "  if (token.split('.').length === 3) {",
+                  "    var payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "    pm.collectionVariables.set('userAId', payload.userId || '');",
+                  "    pm.collectionVariables.set('userARole', payload.role || '');",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Login User B (200)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/login"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 200 or 429', function(){ pm.expect([200,429]).to.include(pm.response.code); });",
-            "if (pm.response.code === 200) {",
-            "  var r = pm.response.json();",
-            "  pm.collectionVariables.set('accessTokenB', r.accessToken || '');",
-            "  pm.collectionVariables.set('refreshTokenB', r.refreshToken || '');",
-            "  var token = r.accessToken || '';",
-            "  if (token.split('.').length === 3) {",
-            "    var payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
-            "    pm.collectionVariables.set('userBId', payload.userId || '');",
-            "    pm.collectionVariables.set('userBRole', payload.role || '');",
-            "  }",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 429', function(){ pm.expect([200,429]).to.include(pm.response.code); });",
+                  "if (pm.response.code === 200) {",
+                  "  var r = pm.response.json();",
+                  "  pm.collectionVariables.set('accessTokenB', r.accessToken || '');",
+                  "  pm.collectionVariables.set('refreshTokenB', r.refreshToken || '');",
+                  "  var token = r.accessToken || '';",
+                  "  if (token.split('.').length === 3) {",
+                  "    var payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "    pm.collectionVariables.set('userBId', payload.userId || '');",
+                  "    pm.collectionVariables.set('userBRole', payload.role || '');",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Login Wrong Password (401)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"wrong\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userAEmail}}\",\n  \"password\": \"wrong\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/login"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 401 or 429', function(){ pm.expect([401,429]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 or 429', function(){ pm.expect([401,429]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Refresh Token A (200)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshTokenA}}\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshTokenA}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/refresh"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 401 or 429', function(){ pm.expect([200,401,429]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 401 or 429', function(){ pm.expect([200,401,429]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Logout A (204)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshTokenA}}\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshTokenA}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/logout"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 204 or 401 or 400 or 429', function(){ pm.expect([204,401,400,429]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204 or 401 or 400 or 429', function(){ pm.expect([204,401,400,429]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Logout All A (204)",
@@ -296,7 +488,17 @@
             "method": "POST",
             "url": "{{baseUrl}}/api/auth/logout-all?email={{userAEmail}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 204 or 400 or 429', function(){ pm.expect([204,400,429]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204 or 400 or 429', function(){ pm.expect([204,400,429]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -304,92 +506,132 @@
       "name": "02 Account",
       "item": [
         {
-          "name": "Create My Account A multi_step",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{userAName}}\",\n  \"description\": \"User A account\"\n}" },
-            "url": "{{baseUrl}}/api/my_account/multi_step"
-          },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 409', function(){ pm.expect([200,409]).to.include(pm.response.code); });"] } }]
-        },
-        {
-          "name": "Create My Account A Duplicate",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{userAName}}\",\n  \"description\": \"Duplicate create\"\n}" },
-            "url": "{{baseUrl}}/api/my_account/multi_step"
-          },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 409', function(){ pm.expect([200,409]).to.include(pm.response.code); });"] } }]
-        },
-        {
           "name": "Get My Account A",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/my_account"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update My Account A",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated profile A\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated profile A\"\n}"
+            },
             "url": "{{baseUrl}}/api/my_account"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Account By Email A",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/accounts?email={{userAEmail}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
-        },
-        {
-          "name": "Create My Account B multi_step",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenB}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{userBName}}\",\n  \"description\": \"User B account\"\n}" },
-            "url": "{{baseUrl}}/api/my_account/multi_step"
-          },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 409', function(){ pm.expect([200,409]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Account not-email",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/accounts?email=not-email"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 404', function(){ pm.response.to.have.status(404); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function(){ pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Keep My Account A for next flows",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/my_account"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -400,70 +642,161 @@
           "name": "Create Group Chat",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "name", "value": "Group {{runId}}", "type": "text" },
-                { "key": "description", "value": "Group for tests", "type": "text" }
+                {
+                  "key": "name",
+                  "value": "Group {{runId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Group for tests",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{baseUrl}}/api/chats/group?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
-            "var r = pm.response.json(); pm.collectionVariables.set('groupChatId', r.id || '');"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+                  "var r = pm.response.json(); pm.collectionVariables.set('groupChatId', r.id || '');"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Create One-to-One Chat A-B",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"otherUserEmail\": \"{{userBEmail}}\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otherUserEmail\": \"{{userBEmail}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/chats?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
-            "var r = pm.response.json(); pm.collectionVariables.set('oneToOneChatId', r.id || '');"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+                  "var r = pm.response.json(); pm.collectionVariables.set('oneToOneChatId', r.id || '');"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Chat By ID",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/chats/{{groupChatId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Chat",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "name", "value": "Updated Group {{runId}}", "type": "text" },
-                { "key": "description", "value": "Updated description", "type": "text" }
+                {
+                  "key": "name",
+                  "value": "Updated Group {{runId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{baseUrl}}/api/chats/{{groupChatId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete OneToOne by B (403 expected)",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenB}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenB}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/chats/{{oneToOneChatId}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 403 or 204', function(){ pm.expect([403,204]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403 or 204', function(){ pm.expect([403,204]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -475,39 +808,96 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userBEmail}}\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userBEmail}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/chat-participants/{{groupChatId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 409', function(){ pm.expect([200,409]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 409', function(){ pm.expect([200,409]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Participant Role",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"userId\": \"{{userBId}}\",\n  \"newStatus\": \"ADMIN\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"userId\": \"{{userBId}}\",\n  \"newStatus\": \"ADMIN\"\n}"
+            },
             "url": "{{baseUrl}}/api/chat-participants"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 403', function(){ pm.expect([200,403]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 403', function(){ pm.expect([200,403]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Kick Participant B",
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"participantId\": \"{{userBId}}\",\n  \"chatId\": \"{{groupChatId}}\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{userBId}}\",\n  \"chatId\": \"{{groupChatId}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/chat-participants"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 204 or 403 or 404', function(){ pm.expect([204,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204 or 403 or 404', function(){ pm.expect([204,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -518,109 +908,254 @@
           "name": "Send Message",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "chatId", "value": "{{groupChatId}}", "type": "text" },
-                { "key": "content", "value": "Hello {{runId}}", "type": "text" }
+                {
+                  "key": "chatId",
+                  "value": "{{groupChatId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Hello {{runId}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{baseUrl}}/api/messages"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
-            "var r = pm.response.json(); pm.collectionVariables.set('messageId', String(r.id || ''));",
-            "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + r.id + '.*CREATED');"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+                  "var r = pm.response.json(); pm.collectionVariables.set('messageId', String(r.id || ''));",
+                  "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + r.id + '.*CREATED');"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Send Invalid Empty Message",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "chatId", "value": "{{groupChatId}}", "type": "text" }
+                {
+                  "key": "chatId",
+                  "value": "{{groupChatId}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{baseUrl}}/api/messages"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', function(){ pm.response.to.have.status(400); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function(){ pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Message by ID",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/{{messageId}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', function(){ pm.response.to.have.status(200); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Message",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "\"Updated content {{runId}}\"" },
+            "body": {
+              "mode": "raw",
+              "raw": "\"Updated content {{runId}}\""
+            },
             "url": "{{baseUrl}}/api/messages/{{messageId}}/update"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 200', function(){ pm.response.to.have.status(200); });",
-            "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + pm.collectionVariables.get('messageId') + '.*UPDATED');"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + pm.collectionVariables.get('messageId') + '.*UPDATED');"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Message by B (403 expected)",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenB}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenB}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/{{messageId}}/delete"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 403 or 204', function(){ pm.expect([403,204]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403 or 204', function(){ pm.expect([403,204]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Message by A",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/{{messageId}}/delete"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 204 or 404', function(){ pm.expect([204,404]).to.include(pm.response.code); });",
-            "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + pm.collectionVariables.get('messageId') + '.*DELETED');"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204 or 404', function(){ pm.expect([204,404]).to.include(pm.response.code); });",
+                  "pm.collectionVariables.set('expectedKafkaRegex', 'messageId\\\\s*:\\\\s*' + pm.collectionVariables.get('messageId') + '.*DELETED');"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Deleted Message",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/{{messageId}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 404', function(){ pm.response.to.have.status(404); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function(){ pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Admin Messages in Chat with USER token",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/admin/chats/{{groupChatId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 403', function(){ pm.response.to.have.status(403); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function(){ pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Admin User Messages with USER token",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/admin/users/{{userAId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 403', function(){ pm.response.to.have.status(403); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function(){ pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -631,55 +1166,145 @@
           "name": "Get All Statuses For Message",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-statuses/message/{{messageId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 404', function(){ pm.expect([200,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 404', function(){ pm.expect([200,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Messages For User In Chat",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-statuses/chat/{{groupChatId}}?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Statuses From User",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-statuses/from-user/{{userAId}}?chatId={{groupChatId}}&page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Unread Count In Chat",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-status/chat/{{groupChatId}}/unread-count"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Last Message Status",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-status/chat/{{groupChatId}}/last"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Message With Status",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/message-status/message/{{messageId}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 403 or 404', function(){ pm.expect([200,403,404]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 403 or 404', function(){ pm.expect([200,403,404]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -690,206 +1315,345 @@
           "name": "Search GET",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/search?chatId={{groupChatId}}&query={{searchNeedle}}&page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });",
-            "if (pm.response.code !== 200) {",
-            "  var e = pm.response.json();",
-            "  pm.test('Search GET error payload has exact expected values', function(){",
-            "    if (pm.response.code === 400) {",
-            "      var expected400 = [",
-            "        { error: 'Validation Error', message: 'Chat ID cannot be null' },",
-            "        { error: 'Validation Error', message: 'Query cannot be null' },",
-            "        { error: 'Validation Error', message: 'Query cannot be blank' },",
-            "        { error: 'Missing Request Parameter', message: \"Required request parameter 'chatId' is missing\" },",
-            "        { error: 'Missing Request Parameter', message: \"Required request parameter 'query' is missing\" }",
-            "      ];",
-            "      var matched400 = expected400.some(function(x){ return e.error === x.error && e.message === x.message; });",
-            "      pm.expect(matched400).to.eql(true, 'Unexpected 400 error/message: ' + JSON.stringify(e));",
-            "    } else if (pm.response.code === 403) {",
-            "      pm.expect(e.error).to.eql('Access Denied');",
-            "      pm.expect(e.message).to.eql('User does not have access to this chat');",
-            "    } else if (pm.response.code === 404) {",
-            "      var expected404 = [",
-            "        { error: 'Document Not Found', message: 'Document not found' },",
-            "        { error: 'Not Found', message: 'No static resource api/search.' }",
-            "      ];",
-            "      var matched404 = expected404.some(function(x){ return e.error === x.error && e.message === x.message; });",
-            "      pm.expect(matched404).to.eql(true, 'Unexpected 404 error/message: ' + JSON.stringify(e));",
-            "    }",
-            "  });",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });",
+                  "if (pm.response.code !== 200) {",
+                  "  var e = pm.response.json();",
+                  "  pm.test('Search GET error payload has exact expected values', function(){",
+                  "    if (pm.response.code === 400) {",
+                  "      var expected400 = [",
+                  "        { error: 'Validation Error', message: 'Chat ID cannot be null' },",
+                  "        { error: 'Validation Error', message: 'Query cannot be null' },",
+                  "        { error: 'Validation Error', message: 'Query cannot be blank' },",
+                  "        { error: 'Missing Request Parameter', message: \"Required request parameter 'chatId' is missing\" },",
+                  "        { error: 'Missing Request Parameter', message: \"Required request parameter 'query' is missing\" }",
+                  "      ];",
+                  "      var matched400 = expected400.some(function(x){ return e.error === x.error && e.message === x.message; });",
+                  "      pm.expect(matched400).to.eql(true, 'Unexpected 400 error/message: ' + JSON.stringify(e));",
+                  "    } else if (pm.response.code === 403) {",
+                  "      pm.expect(e.error).to.eql('Access Denied');",
+                  "      pm.expect(e.message).to.eql('User does not have access to this chat');",
+                  "    } else if (pm.response.code === 404) {",
+                  "      var expected404 = [",
+                  "        { error: 'Document Not Found', message: 'Document not found' },",
+                  "        { error: 'Not Found', message: 'No static resource api/search.' }",
+                  "      ];",
+                  "      var matched404 = expected404.some(function(x){ return e.error === x.error && e.message === x.message; });",
+                  "      pm.expect(matched404).to.eql(true, 'Unexpected 404 error/message: ' + JSON.stringify(e));",
+                  "    }",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Search POST",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"query\": \"{{searchNeedle}}\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"query\": \"{{searchNeedle}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/search?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });",
-            "if (pm.response.code !== 200) {",
-            "  var e = pm.response.json();",
-            "  pm.test('Search POST error payload has exact expected values', function(){",
-            "    if (pm.response.code === 400) {",
-            "      var expected400 = [",
-            "        { error: 'Validation Error', message: 'Chat ID cannot be null' },",
-            "        { error: 'Validation Error', message: 'Query cannot be null' },",
-            "        { error: 'Validation Error', message: 'Query cannot be blank' },",
-            "        { error: 'HttpMessageNotReadableException', message: 'Request body is missing or malformed' }",
-            "      ];",
-            "      var matched400 = expected400.some(function(x){ return e.error === x.error && e.message === x.message; });",
-            "      pm.expect(matched400).to.eql(true, 'Unexpected 400 error/message: ' + JSON.stringify(e));",
-            "    } else if (pm.response.code === 403) {",
-            "      pm.expect(e.error).to.eql('Access Denied');",
-            "      pm.expect(e.message).to.eql('User does not have access to this chat');",
-            "    } else if (pm.response.code === 404) {",
-            "      var expected404 = [",
-            "        { error: 'Document Not Found', message: 'Document not found' },",
-            "        { error: 'Not Found', message: 'No static resource api/search.' }",
-            "      ];",
-            "      var matched404 = expected404.some(function(x){ return e.error === x.error && e.message === x.message; });",
-            "      pm.expect(matched404).to.eql(true, 'Unexpected 404 error/message: ' + JSON.stringify(e));",
-            "    }",
-            "  });",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400 or 403 or 404', function(){ pm.expect([200,400,403,404]).to.include(pm.response.code); });",
+                  "if (pm.response.code !== 200) {",
+                  "  var e = pm.response.json();",
+                  "  pm.test('Search POST error payload has exact expected values', function(){",
+                  "    if (pm.response.code === 400) {",
+                  "      var expected400 = [",
+                  "        { error: 'Validation Error', message: 'Chat ID cannot be null' },",
+                  "        { error: 'Validation Error', message: 'Query cannot be null' },",
+                  "        { error: 'Validation Error', message: 'Query cannot be blank' },",
+                  "        { error: 'HttpMessageNotReadableException', message: 'Request body is missing or malformed' }",
+                  "      ];",
+                  "      var matched400 = expected400.some(function(x){ return e.error === x.error && e.message === x.message; });",
+                  "      pm.expect(matched400).to.eql(true, 'Unexpected 400 error/message: ' + JSON.stringify(e));",
+                  "    } else if (pm.response.code === 403) {",
+                  "      pm.expect(e.error).to.eql('Access Denied');",
+                  "      pm.expect(e.message).to.eql('User does not have access to this chat');",
+                  "    } else if (pm.response.code === 404) {",
+                  "      var expected404 = [",
+                  "        { error: 'Document Not Found', message: 'Document not found' },",
+                  "        { error: 'Not Found', message: 'No static resource api/search.' }",
+                  "      ];",
+                  "      var matched404 = expected404.some(function(x){ return e.error === x.error && e.message === x.message; });",
+                  "      pm.expect(matched404).to.eql(true, 'Unexpected 404 error/message: ' + JSON.stringify(e));",
+                  "    }",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Send Message v1",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "chatId", "value": "{{groupChatId}}", "type": "text" },
-                { "key": "content", "value": "{{fulltextTermV1}}", "type": "text" }
+                {
+                  "key": "chatId",
+                  "value": "{{groupChatId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "{{fulltextTermV1}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{baseUrl}}/api/messages"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.response.to.have.status(201);",
-            "var r = pm.response.json();",
-            "pm.collectionVariables.set('fulltextMessageId', String(r.id || ''));"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);",
+                  "var r = pm.response.json();",
+                  "pm.collectionVariables.set('fulltextMessageId', String(r.id || ''));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Search v1 Found",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/search?chatId={{groupChatId}}&query={{fulltextTermV1}}&page=0&size=20"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.response.to.have.status(200);",
-            "var j = pm.response.json();",
-            "var list = j.content || [];",
-            "var term = pm.collectionVariables.get('fulltextTermV1');",
-            "var found = list.some(function(x){ return String(x.content || '').indexOf(term) !== -1; });",
-            "pm.test('v1 content found in search', function(){ pm.expect(found).to.eql(true); });"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var j = pm.response.json();",
+                  "var list = j.content || [];",
+                  "var term = pm.collectionVariables.get('fulltextTermV1');",
+                  "var found = list.some(function(x){ return String(x.content || '').indexOf(term) !== -1; });",
+                  "pm.test('v1 content found in search', function(){ pm.expect(found).to.eql(true); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Update Message to v2",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "\"{{fulltextTermV2}}\"" },
+            "body": {
+              "mode": "raw",
+              "raw": "\"{{fulltextTermV2}}\""
+            },
             "url": "{{baseUrl}}/api/messages/{{fulltextMessageId}}/update"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Search v2 Found",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/search?chatId={{groupChatId}}&query={{fulltextTermV2}}&page=0&size=20"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.response.to.have.status(200);",
-            "var j = pm.response.json();",
-            "var list = j.content || [];",
-            "var term = pm.collectionVariables.get('fulltextTermV2');",
-            "var found = list.some(function(x){ return String(x.content || '').indexOf(term) !== -1; });",
-            "pm.test('v2 content found in search', function(){ pm.expect(found).to.eql(true); });"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var j = pm.response.json();",
+                  "var list = j.content || [];",
+                  "var term = pm.collectionVariables.get('fulltextTermV2');",
+                  "var found = list.some(function(x){ return String(x.content || '').indexOf(term) !== -1; });",
+                  "pm.test('v2 content found in search', function(){ pm.expect(found).to.eql(true); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Delete Message",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/messages/{{fulltextMessageId}}/delete"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 204 or 404', function(){ pm.expect([204,404]).to.include(pm.response.code); });",
-            "if (pm.response.code === 404) {",
-            "  var e = pm.response.json();",
-            "  pm.test('FT Delete 404 exact error', function(){",
-            "    pm.expect(e.error).to.eql('Message Not Found');",
-            "    pm.expect(String(e.message || '')).to.match(/^Message not found: /);",
-            "  });",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204 or 404', function(){ pm.expect([204,404]).to.include(pm.response.code); });",
+                  "if (pm.response.code === 404) {",
+                  "  var e = pm.response.json();",
+                  "  pm.test('FT Delete 404 exact error', function(){",
+                  "    pm.expect(e.error).to.eql('Message Not Found');",
+                  "    pm.expect(String(e.message || '')).to.match(/^Message not found: /);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "FT Search v2 Not Found After Delete",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/search?chatId={{groupChatId}}&query={{fulltextTermV2}}&page=0&size=20"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.response.to.have.status(200);",
-            "var j = pm.response.json();",
-            "var list = j.content || [];",
-            "var id = String(pm.collectionVariables.get('fulltextMessageId'));",
-            "var foundById = list.some(function(x){ return String(x.messageId || x.id) === id; });",
-            "var retry = parseInt(pm.collectionVariables.get('ftDeleteSearchRetry') || '0', 10);",
-            "var maxRetry = 10;",
-            "if (foundById && retry < maxRetry) {",
-            "  pm.collectionVariables.set('ftDeleteSearchRetry', String(retry + 1));",
-            "  postman.setNextRequest('FT Search v2 Not Found After Delete');",
-            "  pm.test('Index sync in progress, retry ' + (retry + 1), function(){ pm.expect(true).to.eql(true); });",
-            "} else {",
-            "  pm.collectionVariables.unset('ftDeleteSearchRetry');",
-            "  pm.test('deleted message absent from search', function(){ pm.expect(foundById).to.eql(false); });",
-            "}"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var j = pm.response.json();",
+                  "var list = j.content || [];",
+                  "var id = String(pm.collectionVariables.get('fulltextMessageId'));",
+                  "var foundById = list.some(function(x){ return String(x.messageId || x.id) === id; });",
+                  "var retry = parseInt(pm.collectionVariables.get('ftDeleteSearchRetry') || '0', 10);",
+                  "var maxRetry = 10;",
+                  "if (foundById && retry < maxRetry) {",
+                  "  pm.collectionVariables.set('ftDeleteSearchRetry', String(retry + 1));",
+                  "  postman.setNextRequest('FT Search v2 Not Found After Delete');",
+                  "  pm.test('Index sync in progress, retry ' + (retry + 1), function(){ pm.expect(true).to.eql(true); });",
+                  "} else {",
+                  "  pm.collectionVariables.unset('ftDeleteSearchRetry');",
+                  "  pm.test('deleted message absent from search', function(){ pm.expect(foundById).to.eql(false); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Search POST Blank Query",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessTokenA}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"query\": \"  \"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chatId\": \"{{groupChatId}}\",\n  \"query\": \"  \"\n}"
+            },
             "url": "{{baseUrl}}/api/search?page=0&size=10"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('Status 400', function(){ pm.response.to.have.status(400); });",
-            "var e = pm.response.json();",
-            "pm.test('Search blank query exact error', function(){",
-            "  pm.expect(e.error).to.eql('Validation Error');",
-            "  pm.expect(e.message).to.eql('Query cannot be blank');",
-            "});"
-          ] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function(){ pm.response.to.have.status(400); });",
+                  "var e = pm.response.json();",
+                  "pm.test('Search blank query exact error', function(){",
+                  "  pm.expect(e.error).to.eql('Validation Error');",
+                  "  pm.expect(e.message).to.eql('Query cannot be blank');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -900,10 +1664,25 @@
           "name": "Retry Email",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenA}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenA}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/mail/retry"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400', function(){ pm.expect([200,400]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400', function(){ pm.expect([200,400]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Retry Email Without Auth",
@@ -911,7 +1690,17 @@
             "method": "GET",
             "url": "{{baseUrl}}/api/mail/retry"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', function(){ pm.response.to.have.status(400); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function(){ pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Confirm Email Invalid Token",
@@ -919,7 +1708,17 @@
             "method": "GET",
             "url": "{{baseUrl}}/api/mail/confirm?token=00000000-0000-0000-0000-000000000000"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', function(){ pm.response.to.have.status(400); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function(){ pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Confirm Email Manual Token",
@@ -927,20 +1726,149 @@
             "method": "GET",
             "url": "{{baseUrl}}/api/mail/confirm?token={{confirmToken}}"
           },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200 or 400', function(){ pm.expect([200,400]).to.include(pm.response.code); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 400', function(){ pm.expect([200,400]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "09 Gateway Fallbacks",
       "item": [
-        { "name": "fallback auth", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/auth-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback message", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/message-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback chat", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/chat-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback account", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/account-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback search", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/fulltext-search-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback mail", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/mail-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] },
-        { "name": "fallback user", "request": { "method": "GET", "url": "{{baseUrl}}/fallback/user-service" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(503);"] } }] }
+        {
+          "name": "fallback auth",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/auth-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback message",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/message-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback chat",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/chat-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback account",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/account-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback search",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/fulltext-search-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback mail",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/mail-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "fallback user",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/fallback/user-service"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(503);"
+                ]
+              }
+            }
+          ]
+        }
       ]
     },
     {
@@ -1019,7 +1947,12 @@
           "name": "Delete My Account B (trigger account-deleted)",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessTokenB}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessTokenB}}"
+              }
+            ],
             "url": "{{baseUrl}}/api/my_account"
           },
           "event": [
@@ -1072,8 +2005,16 @@
           "name": "Login User B After Delete (auth-service)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userBEmail}}\",\n  \"password\": \"{{userBPassword}}\"\n}"
+            },
             "url": "{{baseUrl}}/api/auth/login"
           },
           "event": [

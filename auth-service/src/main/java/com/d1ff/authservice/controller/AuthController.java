@@ -65,7 +65,7 @@ public class AuthController {
                 )
             }
     )
-    @PostMapping("/register/multi_step")
+    @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest,
                                                  HttpServletRequest request
     ) {
