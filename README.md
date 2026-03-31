@@ -20,12 +20,12 @@ RSA-подписанные JWT-токены, потоковая передача
 - [Ключевые особенности](#ключевые-особенности)
 - [Технологический стек](#технологический-стек)
 - [Архитектура](#архитектура)
-- [Сервисы](#сервисы)
 - [Базы данных](#базы-данных)
-- [Kafka-топики](#kafka-топики)
-- [gRPC-взаимодействие](#grpc-взаимодействие)
+- [Grpc сообщения](#grpc-взаимодействие)
+- [Kafka сообщения](#kafka-сообщения)
+- [Базовый userflow](#базовый-userflow)
+- [Сервисы](#сервисы)
 - [Наблюдаемость](#наблюдаемость)
-- [Поток регистрации](#поток-регистрации)
 - [Быстрый старт](#быстрый-старт)
 - [Структура проекта](#структура-проекта)
 
@@ -259,52 +259,6 @@ WebSocket-шлюз для реального времени.
 
 ---
 
-## Базы данных
-
-| База данных | Сервис | Назначение   |
-|---|---|--------------|
-| `auth_db` | auth-service | users, outbox_events |
-| `account_db` | account-service | accounts, outbox_events |
-| `message_db` | message-service | messages, statuses |
-| `chat_db` | chat-service | chats, participants |
-| `mail_db` | mail-service | confirmation_tokens, outbox_events |
-| `realtime_db` | realtime-gateway | outbox_events|
-| Elasticsearch | fulltext-search-service | message index |
-| ClickHouse | analytic-service | analytics events |
-| Redis | auth-service, account-service, api-gateway | refresh tokens, cache, rate limiting |
-
----
-
-## Kafka-топики
-
-Все события сериализуются через Avro + Confluent Schema Registry. Публикация осуществляется через Outbox-паттерн: события сохраняются в таблицу `outbox_events`, `OutboxScheduler` публикует их в Kafka каждую секунду.
-
-| Топик | Производитель | Потребитель |
-|---|---|---|
-| `user-registered` | auth-service | account-service |
-| `email-confirmation` | auth-service | mail-service |
-| `email-confirmed` | mail-service | auth-service |
-| `account-deleted` | account-service | auth-service |
-| `message-sent` | message-service | realtime-gateway, fulltext-search-service |
-| `message-delivered` | realtime-gateway | message-service |
-| `analytic-sent` | auth-service, message-service | analytic-service |
-
----
-
-## gRPC-взаимодействие
-
-| Клиент | Сервер | Порт | Назначение |
-|---|---|---|---|
-| message-service | file-service | 9091 | Загрузка файлов, получение presigned URL |
-| message-service | chat-service | 9092 | Проверка членства в чате |
-| chat-service | file-service | 9091 | Загрузка иконок чатов |
-| chat-service | account-service | 9092 | Валидация участников |
-| account-service | file-service | 9091 | Загрузка аватаров |
-| realtime-gateway | chat-service | 9092 | Информация о чате для WebSocket-сессий |
-| fulltext-search-service | chat-service | 9092 | Метаданные чата для индексации |
-
----
-
 ## Наблюдаемость
 
 | Компонент | Порт | Назначение |
@@ -319,26 +273,6 @@ WebSocket-шлюз для реального времени.
 **Экспортёры метрик:** postgres-exporter (9187), redis-exporter (9121), kafka-exporter (9308), elasticsearch-exporter (9114)
 
 Все сервисы экспортируют метрики на `/actuator/prometheus` с интервалом скрейпинга 10 секунд. OpenTelemetry OTLP-трейсы отправляются в Tempo с частотой семплирования 100%. Alloy парсит JSON-логи контейнеров, извлекает `trace_id`, `span_id`, `service`, `level` и форвардит в Loki.
-
----
-
-## Поток регистрации
-
-```
-1. Клиент     POST /api/auth/register { email, password, username }
-                      │
-2. auth-service       ├─ создаёт User в auth_db
-                      ├─ сохраняет UserRegisteredEvent в outbox_events
-                      └─ возвращает Access Token + Refresh Token немедленно
-
-3. OutboxScheduler (каждые 1с)
-                      └─ публикует UserRegisteredEvent → Kafka [user-registered]
-
-4. account-service    └─ потребляет UserRegisteredEvent → создаёт Account в account_db
-
-5. mail-service (асинхронно)
-                      └─ получает email-confirmation → отправляет письмо с токеном подтверждения
-```
 
 ---
 
