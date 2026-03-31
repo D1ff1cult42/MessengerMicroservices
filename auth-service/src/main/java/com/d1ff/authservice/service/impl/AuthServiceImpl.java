@@ -18,6 +18,7 @@ import com.d1ff.authservice.service.interfaces.AuthService;
 import com.d1ff.authservice.service.jwt.JwtService;
 import com.d1ff.authservice.service.jwt.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.email());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setActive(true);
-        user.setVerified(false);
+        user.setIsVerified(false);
         user.setRole(User.Role.USER);
 
         user = userRepository.save(user);

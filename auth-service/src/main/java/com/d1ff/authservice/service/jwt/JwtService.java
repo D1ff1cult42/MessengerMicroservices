@@ -51,7 +51,7 @@ public class JwtService {
                 .claim("userId", user.getId().toString())
                 .claim("role", user.getRole().name())
                 .claim("isActive", user.isActive())
-                .claim("isVerified", user.isVerified())
+                .claim("isVerified", user.getIsVerified())
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(

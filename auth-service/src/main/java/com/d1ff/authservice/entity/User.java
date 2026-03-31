@@ -33,7 +33,7 @@ public class User {
     private boolean isActive = true;
 
     @Column(name = "is_verified", nullable = false)
-    private boolean isVerified = false;
+    private Boolean isVerified = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

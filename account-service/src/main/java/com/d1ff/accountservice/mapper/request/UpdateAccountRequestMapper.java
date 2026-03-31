@@ -13,7 +13,7 @@ public interface UpdateAccountRequestMapper {
     @Mapping(target = "avatarObjectName", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "verified", ignore = true)
+    @Mapping(target = "isVerified", ignore = true)
     void updateFromRequest(@MappingTarget Account account,
                            UpdateAccountRequest request);
 }

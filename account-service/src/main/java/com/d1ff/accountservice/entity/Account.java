@@ -45,5 +45,5 @@ public class Account {
 
     @Column(name = "is_verified", nullable = false)
     @Builder.Default
-    private boolean isVerified = false;
+    private Boolean isVerified = false;
 }

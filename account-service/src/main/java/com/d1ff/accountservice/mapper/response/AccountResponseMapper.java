@@ -25,7 +25,7 @@ public interface AccountResponseMapper {
                 icon != null ? icon.url() : null,
                 icon != null ? icon.ttl() : null,
                 account.getCreatedAt(),
-                account.isVerified()
+                account.getIsVerified()
         );
     }
 }

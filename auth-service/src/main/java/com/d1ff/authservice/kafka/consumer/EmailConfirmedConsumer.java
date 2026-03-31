@@ -29,7 +29,7 @@ public class EmailConfirmedConsumer {
                 event.getEventId(), event.getUserId(), event.getEmail(), partition);
         try {
             userRepository.findById(event.getUserId()).ifPresent(user -> {
-                user.setVerified(true);
+                user.setIsVerified(true);
                 userRepository.save(user);
                 log.info("User email verified: userId={}", event.getUserId());
             });
