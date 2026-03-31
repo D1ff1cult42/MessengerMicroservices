@@ -1,0 +1,114 @@
+ @startuml architecture
+   title Общая архитектура — MessengerMicroservices
+
+   skinparam backgroundColor #FEFEFE
+   skinparam defaultFontSize 13
+   skinparam ArrowColor #555555
+
+   skinparam rectangle {
+     BorderColor #336699
+   }
+   skinparam node {
+     BackgroundColor #F0F8FF
+     BorderColor #336699
+   }
+   skinparam database {
+     BackgroundColor #FFFBE6
+     BorderColor #CC9900
+   }
+   skinparam cloud {
+     BackgroundColor #F5F5F5
+     BorderColor #888888
+   }
+
+   actor "Клиент\n(HTTP / WebSocket)" as client
+
+   rectangle "api-gateway :8080" as gw #DDEEFF {
+     rectangle "JWT Validation\n(RSA public key)" as jwt #EEF4FF
+     rectangle "Rate Limiting\n(Bucket4j + Redis)" as rl #EEF4FF
+     rectangle "Circuit Breaker\n(Resilience4j)" as cb #EEF4FF
+     rectangle "Routing" as route #EEF4FF
+   }
+
+   rectangle "auth-service\n:8081" as auth #E8F4FD
+   rectangle "message-service\n:8082" as msg #F8E8FF
+   rectangle "file-service\n:8083\ngRPC :9091" as file #FFF3E0
+   rectangle "chat-service\n:8084\ngRPC :9092" as chat #FFF8E8
+   rectangle "account-service\n:8085\ngRPC :9092" as account #E8FDE8
+   rectangle "realtime-gateway\n:8086\n(WebSocket/STOMP)" as realtime #F0F0FF
+   rectangle "fulltext-search\n:8087" as search #E0FFF0
+   rectangle "mail-service\n:8088" as mail #FFE8E8
+   rectangle "analytic-service\n:8090" as analytic #FFF0E0
+
+   queue "Apache Kafka\n(KRaft + Avro)\nSchema Registry" as kafka #FFF3CC
+
+   database "PostgreSQL ×6\nauth_db · account_db\nmessage_db · chat_db\nmail_db · realtime_db" as pg #FFFBE6
+   database "Redis\nrefresh tokens\ncache · rate limit" as redis #FFE0E0
+   database "MinIO\n(S3-compatible)" as minio #E0F0FF
+   database "Elasticsearch" as es #E8FFE8
+   database "ClickHouse" as ch #FFF8E0
+
+   cloud "Observability\nPrometheus · Grafana\nLoki · Tempo · Alloy" as obs #F5F5F5
+
+   client -[#333333]-> gw : HTTP / WS :8080
+
+   gw -[#0055CC]-> auth     : /api/auth/**
+   gw -[#0055CC]-> msg      : /api/messages/**\n/api/message-status/**
+   gw -[#0055CC]-> file     : /api/files/**
+   gw -[#0055CC]-> chat     : /api/chats/**\n/api/chat-participants/**
+   gw -[#0055CC]-> account  : /api/my_account/**\n/api/accounts/**
+   gw -[#0055CC]-> realtime : /ws/** (WS upgrade)\n/springwolf/**
+   gw -[#0055CC]-> search   : /api/search/**
+   gw -[#0055CC]-> mail     : /api/mail/**
+
+   msg      -[#888888,dashed]-> file    : gRPC: uploadFile\ngetPresignedUrl
+   msg      -[#888888,dashed]-> chat    : gRPC: isUserExistsInChat\ngetChatParticipants
+   account  -[#888888,dashed]-> file    : gRPC: uploadFile\ngetPresignedUrl
+   chat     -[#888888,dashed]-> file    : gRPC: uploadFile\ngetPresignedUrl
+   chat     -[#888888,dashed]-> account : gRPC: getAccountByEmail
+   realtime -[#888888,dashed]-> chat    : gRPC: isUserExistsInChat\ngetChatParticipants
+   search   -[#888888,dashed]-> chat    : gRPC: getChatParticipants
+
+   auth     -[#009900]-> kafka : produce
+   account  -[#009900]-> kafka : produce
+   msg      -[#009900]-> kafka : produce
+   realtime -[#009900]-> kafka : produce
+   mail     -[#009900]-> kafka : produce
+
+   kafka -[#CC0000]-> account  : consume
+   kafka -[#CC0000]-> auth     : consume
+   kafka -[#CC0000]-> mail     : consume
+   kafka -[#CC0000]-> msg      : consume
+   kafka -[#CC0000]-> realtime : consume
+   kafka -[#CC0000]-> search   : consume
+   kafka -[#CC0000]-> analytic : consume
+
+   auth     --> pg
+   account  --> pg
+   msg      --> pg
+   chat     --> pg
+   mail     --> pg
+   realtime --> pg
+   search   --> es
+   analytic --> ch
+
+   auth    --> redis
+   account --> redis
+   gw      --> redis
+
+   file    --> minio
+   msg     ..> minio : presigned URL
+   account ..> minio : presigned URL
+   chat    ..> minio : presigned URL
+
+   auth     -[#AAAAAA,dotted]-> obs
+   account  -[#AAAAAA,dotted]-> obs
+   msg      -[#AAAAAA,dotted]-> obs
+   chat     -[#AAAAAA,dotted]-> obs
+   file     -[#AAAAAA,dotted]-> obs
+   realtime -[#AAAAAA,dotted]-> obs
+   search   -[#AAAAAA,dotted]-> obs
+   mail     -[#AAAAAA,dotted]-> obs
+   analytic -[#AAAAAA,dotted]-> obs
+
+ @enduml

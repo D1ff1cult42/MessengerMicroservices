@@ -1,0 +1,127 @@
+  @startuml kafka
+  title Kafka Communications — MessengerMicroservices
+
+  skinparam backgroundColor #FEFEFE
+  skinparam defaultFontSize 13
+  skinparam ArrowColor #555555
+  skinparam rectangle {
+    BackgroundColor #DDEEFF
+    BorderColor #336699
+    FontStyle bold
+  }
+  skinparam queue {
+    BackgroundColor #FFF3CC
+    BorderColor #CC9900
+  }
+  skinparam note {
+    BackgroundColor #F9F9F9
+    BorderColor #AAAAAA
+  }
+
+  rectangle "auth-service\n:8081" as auth
+  rectangle "account-service\n:8085" as account
+  rectangle "mail-service\n:8088" as mail
+  rectangle "message-service\n:8082" as msg
+  rectangle "realtime-gateway\n:8086" as realtime
+  rectangle "fulltext-search\n:8087" as search
+  rectangle "analytic-service\n:8090" as analytic
+
+  queue "user-registered\n[Avro]" as t_user_reg
+  queue "email-confirmation\n[Avro]" as t_email_conf
+  queue "email-confirmed\n[Avro]" as t_email_cfmd
+  queue "account-deleted\n[Avro]" as t_acc_del
+  queue "message-sent\n[Avro]" as t_msg_sent
+  queue "message-delivered\n[Avro]" as t_msg_dlvr
+  queue "analytic-sent\n[Avro]" as t_analytic
+
+  ' === PRODUCE ===
+  auth -[#009900]-> t_user_reg : produce
+  auth -[#009900]-> t_email_conf : produce
+  auth -[#009900]-> t_analytic : produce
+  mail -[#009900]-> t_email_cfmd : produce
+  account -[#009900]-> t_acc_del : produce
+  msg -[#009900]-> t_msg_sent : produce
+  msg -[#009900]-> t_analytic : produce
+  realtime -[#009900]-> t_msg_dlvr : produce
+
+  ' === CONSUME ===
+  t_user_reg -[#CC0000]-> account : consume\n[account-service]
+  t_email_conf -[#CC0000]-> mail : consume\n[mail-service-group]
+  t_email_cfmd -[#CC0000]-> auth : consume\n[auth-service-group]
+  t_acc_del -[#CC0000]-> auth : consume\n[auth-service-group]
+  t_msg_sent -[#CC0000]-> realtime : consume\n[realtime-gateway-group]
+  t_msg_sent -[#CC0000]-> search : consume\n[fulltext-search-service]
+  t_msg_dlvr -[#CC0000]-> msg : consume\n[message-service-group]
+  t_analytic -[#CC0000]-> analytic : consume\n[analytic-service-group]
+
+  note bottom of t_user_reg
+    **UserRegisteredEvent**
+    eventId: UUID
+    userId: UUID
+    email: String
+    username: String?
+    timestamp: DateTime
+  end note
+
+  note bottom of t_email_conf
+    **EmailConfirmationEvent**
+    eventId: UUID
+    userId: UUID
+    email: String
+    timestamp: DateTime
+  end note
+
+  note bottom of t_email_cfmd
+    **EmailConfirmedEvent**
+    eventId: UUID
+    userId: UUID
+    email: String
+    timestamp: DateTime
+  end note
+
+  note bottom of t_acc_del
+    **AccountDeletedEvent**
+    eventId: UUID
+    userId: UUID
+    createdAt: DateTime
+  end note
+
+  note bottom of t_msg_sent
+    **MessageSentEvent**
+    eventId: UUID
+    chatId: UUID
+    senderId: UUID
+    messageId: Long
+    content: String?
+    messageType: CREATED|UPDATED|DELETED
+    timestamp: DateTime
+  end note
+
+  note bottom of t_msg_dlvr
+    **MessageDeliveredEvent**
+    eventId: UUID
+    chatId: UUID
+    userId: UUID
+    messageId: Long
+    timestamp: DateTime
+  end note
+
+  note bottom of t_analytic
+    **AnalyticSentEvent**
+    eventId: UUID
+    createdAt: DateTime
+    payload: bytes (JSON)
+  end note
+
+  note top of auth
+    **Outbox Pattern**
+    Services: auth, account, message,
+              realtime, mail
+    Scheduler: every 1s, batch 100
+    Serialization: Avro + LZ4
+    Idempotent producers
+    Manual ACK + exponential backoff
+    (1s → x2 → max 15s)
+  end note
+
+  @enduml

@@ -1,0 +1,183 @@
+@startuml userflow
+  title User Flows — MessengerMicroservices
+
+  skinparam backgroundColor #FEFEFE
+  skinparam defaultFontSize 12
+  skinparam sequenceMessageAlign center
+  skinparam ParticipantBackgroundColor #E8F4FD
+  skinparam ParticipantBorderColor #336699
+  skinparam SequenceGroupBackgroundColor #F9F9FF
+  skinparam NoteBackgroundColor #FFFFF0
+  skinparam NoteBorderColor #CCCC88
+
+  actor "Клиент" as client
+
+  participant "api-gateway\n:8080" as gw
+  participant "auth-service\n:8081" as auth
+  participant "account-service\n:8085" as account
+  participant "mail-service\n:8088" as mail
+  participant "message-service\n:8082" as msg
+  participant "chat-service\n:8084" as chat
+  participant "file-service\n:8083" as file
+  participant "realtime-gateway\n:8086" as realtime
+  database "Redis" as redis
+  database "PostgreSQL" as pg
+  queue "Kafka" as kafka
+
+  ' ╔══════════════════════════════════════════════════════╗
+  ' ║              FLOW 1: РЕГИСТРАЦИЯ                     ║
+  ' ╚══════════════════════════════════════════════════════╝
+  == FLOW 1: Регистрация ==
+
+  client -> gw : POST /api/auth/register\n{ email, password, username }
+  gw -> auth : forward (без JWT валидации)
+
+  auth -> pg : INSERT auth_users\n(is_verified=false)
+  auth -> pg : INSERT outbox_events\n(user-registered)
+  auth -> pg : INSERT outbox_events\n(email-confirmation)
+
+  auth --> client : 200 OK\n{ accessToken (JWT/RSA), refreshToken }
+  note right of auth
+    Токены выдаются сразу,
+    верификация email — асинхронно
+  end note
+
+  auth -> redis : SET refresh_token:<uuid> → userId (TTL 30d)
+  auth -> redis : SADD user_tokens:<userId> → token
+
+  group Outbox Scheduler (каждые 1с)
+    auth -> kafka : publish UserRegisteredEvent\n[topic: user-registered]
+    auth -> kafka : publish EmailConfirmationEvent\n[topic: email-confirmation]
+  end
+
+  kafka -> account : consume UserRegisteredEvent
+  account -> pg : INSERT accounts\n{ userId, email, username }
+
+  kafka -> mail : consume EmailConfirmationEvent
+  mail -> pg : INSERT mail_tokens (TTL 24h)
+  mail -> client : SMTP: письмо со ссылкой\n/api/mail/confirm?token=...
+
+  client -> gw : GET /api/mail/confirm?token=...
+  gw -> mail : forward
+  mail -> pg : UPDATE mail_tokens SET is_used=true
+  mail -> pg : INSERT outbox_events (email-confirmed)
+  mail -> kafka : publish EmailConfirmedEvent\n[topic: email-confirmed]
+  kafka -> auth : consume EmailConfirmedEvent
+  auth -> pg : UPDATE auth_users SET is_verified=true
+  mail --> client : HTML-страница подтверждения
+
+  ' ╔══════════════════════════════════════════════════════╗
+  ' ║              FLOW 2: ВХОД / ВЫХОД                    ║
+  ' ╚══════════════════════════════════════════════════════╝
+  == FLOW 2: Вход и выход ==
+
+  client -> gw : POST /api/auth/login\n{ email, password }
+  gw -> auth : forward
+  auth -> pg : SELECT auth_users WHERE email=?
+  auth -> redis : SET refresh_token:<uuid> → userId (TTL 30d)
+  auth -> redis : SADD user_tokens:<userId> → token
+  auth --> client : 200 OK { accessToken, refreshToken }
+
+  client -> gw : POST /api/auth/refresh\n{ refreshToken }
+  gw -> auth : forward
+  auth -> redis : GET refresh_token:<token> → userId
+  auth --> client : 200 OK { новый accessToken }
+
+  client -> gw : POST /api/auth/logout\n{ refreshToken }
+  gw -> auth : forward (JWT в заголовке)
+  auth -> redis : DEL refresh_token:<token>
+  auth -> redis : SREM user_tokens:<userId> token
+  auth --> client : 204 No Content
+
+  client -> gw : POST /api/auth/logout-all
+  gw -> auth : forward (JWT в заголовке)
+  auth -> redis : GET user_tokens:<userId> → Set<tokens>
+  auth -> redis : DEL refresh_token:<t1>, <t2>, ...
+  auth -> redis : DEL user_tokens:<userId>
+  auth --> client : 204 No Content
+
+  ' ╔══════════════════════════════════════════════════════╗
+  ' ║              FLOW 3: ОТПРАВКА СООБЩЕНИЯ              ║
+  ' ╚══════════════════════════════════════════════════════╝
+  == FLOW 3: Отправка текстового сообщения ==
+
+  client -> gw : POST /api/messages\n{ chatId, content, type=TEXT }\nAuthorization: Bearer <JWT>
+  gw -> gw : валидация JWT (RSA public key)
+  gw -> msg : forward
+
+  msg -> chat : gRPC isUserExistsInChat\n(userId, chatId)
+  chat -> pg : SELECT chat_participants
+  chat --> msg : userIsExists=true
+
+  msg -> pg : INSERT messages
+  msg -> pg : INSERT message_statuses (SENT)
+  msg -> pg : INSERT outbox_events (message-sent)
+  msg --> client : 201 Created { messageId, ... }
+
+  group Outbox Scheduler
+    msg -> kafka : publish MessageSentEvent\n[topic: message-sent]
+  end
+
+  kafka -> realtime : consume MessageSentEvent\n[realtime-gateway-group]
+  realtime -> chat : gRPC getChatParticipants(chatId)
+  chat --> realtime : ids=[userId1, userId2, ...]
+  realtime -> client : WebSocket STOMP\n/topic/chat.<chatId> → новое сообщение
+
+  realtime -> pg : INSERT outbox_events (message-delivered)
+  realtime -> kafka : publish MessageDeliveredEvent\n[topic: message-delivered]
+  kafka -> msg : consume MessageDeliveredEvent
+  msg -> pg : UPDATE message_statuses SET status=DELIVERED
+
+  kafka -> search : consume MessageSentEvent\n[fulltext-search-service]
+  search -> chat : gRPC getChatParticipants(chatId)
+  search -> search : индексировать в Elasticsearch
+
+  ' ╔══════════════════════════════════════════════════════╗
+  ' ║         FLOW 4: ОТПРАВКА ФАЙЛА                       ║
+  ' ╚══════════════════════════════════════════════════════╝
+  == FLOW 4: Отправка файла (image/video/audio/document) ==
+
+  client -> gw : POST /api/messages\n{ chatId, type=IMAGE, multipart file }
+  gw -> msg : forward
+
+  msg -> chat : gRPC isUserExistsInChat(userId, chatId)
+  chat --> msg : userIsExists=true
+
+  msg -> file : gRPC UploadFile (client-streaming)\nFileMetadata { bucket, filename, content_type, size }\n+ FileChunk × N (64 KB каждый)
+  file -> file : стриминговая запись в MinIO
+  file --> msg : UploadFileResponse\n{ bucket_name, object_name }
+
+  msg -> pg : INSERT messages\n{ bucket_name, object_name, file_name, file_size }
+  msg -> pg : INSERT outbox_events (message-sent)
+  msg --> client : 201 Created { messageId, ... }
+
+  client -> gw : GET /api/messages/{id}/url
+  gw -> msg : forward
+  msg -> file : gRPC GetPresignedUrl\n(bucket_name, object_name)
+  file -> file : генерировать presigned URL\n(TTL зависит от типа бакета)
+  file --> msg : { url, expires_in_seconds }
+  msg --> client : 200 OK { presignedUrl }
+
+  ' ╔══════════════════════════════════════════════════════╗
+  ' ║         FLOW 5: СОЗДАНИЕ ЧАТА                        ║
+  ' ╚══════════════════════════════════════════════════════╝
+  == FLOW 5: Создание чата ==
+
+  client -> gw : POST /api/chats\n{ name, isGroupChat, participantEmails[] }
+  gw -> chat : forward
+
+  loop для каждого participantEmail
+    chat -> account : gRPC GetAccountByEmail(email)
+    note right of account
+      Ответ кешируется в Redis
+      account:email::<email> (TTL 10m)
+    end note
+    account -> pg : SELECT accounts WHERE email=?
+    account --> chat : { userId, username, avatarBucket, avatarObject }
+  end
+
+  chat -> pg : INSERT chats
+  chat -> pg : INSERT chat_participants\n(CREATOR + PARTICIPANT roles)
+  chat --> client : 201 Created { chatId, ... }
+
+@enduml

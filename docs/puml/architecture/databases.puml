@@ -1,0 +1,223 @@
+  @startuml databases
+  title Database Schemas — MessengerMicroservices                               
+                                                                                
+  hide methods                                                                  
+  hide stereotypes                                                              
+  skinparam linetype ortho                                                      
+  skinparam ClassBackgroundColor #FEFEFE                                        
+  skinparam ClassBorderColor #888888                                            
+                                                                                
+  package "auth-service (PostgreSQL)" #E8F4FD {
+    class auth_users {                                                          
+      PK id : UUID                                                              
+      --                                                                        
+      email : VARCHAR UNIQUE NOT NULL                                           
+      password_hash : VARCHAR UNIQUE NOT NULL                                   
+      is_active : BOOLEAN DEFAULT true                                          
+      is_verified : BOOLEAN DEFAULT false                                       
+      role : ENUM(USER, ADMIN) DEFAULT USER                                     
+      created_at : TIMESTAMP NOT NULL                                           
+      last_login : TIMESTAMP NULL
+    }                                                                           
+    class auth_outbox_events {                                                  
+      PK id : UUID                                                              
+      --                                                                        
+      aggregate_id : VARCHAR NOT NULL                                           
+      topic : VARCHAR NOT NULL                                                  
+      payload : BYTEA NOT NULL
+      created_at : TIMESTAMP NOT NULL                                           
+      sent : BOOLEAN DEFAULT false                                              
+    }
+  }                                                                             
+                  
+  package "auth-service (Redis)" #FFE0FF {                                      
+    class refresh_token_string <<Redis String>> {
+      key   : "refresh_token:<uuid>"                                            
+      value : userId (String)                                                   
+      TTL   : auth.refresh-token-expiration                                     
+    }                                                                           
+    class user_tokens_set <<Redis Set>> {                                       
+      key     : "user_tokens:<userId>"                                          
+      members : Set<refreshToken>                                               
+      TTL     : auth.refresh-token-expiration                                   
+    }             
+    note right of user_tokens_set                                               
+      revokeAll: удаляет все токены                                             
+      из Set и все соотв. String-ключи                                          
+    end note                                                                    
+  }                                                                             
+                                                                                
+  package "account-service (PostgreSQL)" #E8FDE8 {
+    class accounts {                                                            
+      PK user_id : UUID                                                         
+      --                                                                        
+      email : VARCHAR UNIQUE NOT NULL                                           
+      username : VARCHAR NULL                                                   
+      avatar_object_name : VARCHAR NULL
+      avatar_bucket_name : VARCHAR NULL                                         
+      description : TEXT NULL                                                   
+      created_at : TIMESTAMP NOT NULL                                           
+      updated_at : TIMESTAMP NULL                                               
+      is_verified : BOOLEAN DEFAULT false                                       
+    }                                                                           
+    class account_outbox_events {                                               
+      PK id : UUID
+      --                                                                        
+      aggregate_id : VARCHAR NOT NULL
+      topic : VARCHAR NOT NULL                                                  
+      payload : BYTEA NOT NULL
+      created_at : TIMESTAMP NOT NULL
+      sent : BOOLEAN DEFAULT false
+    }
+  }
+                                                                                
+  package "account-service (Redis)" #FFE0FF {
+    class account_cache_by_id <<Redis Cache (JSON)>> {                          
+      key   : "account:id::<userId>"
+      value : Account (JSON)                                                    
+      TTL   : cache.account-ttl
+    }                                                                           
+    class account_cache_by_email <<Redis Cache (JSON)>> {
+      key   : "account:email::<email>"                                          
+      value : Account (JSON)
+      TTL   : cache.account-ttl                                                 
+    }
+    note right of account_cache_by_id                                           
+      @Cacheable — заполняется при gRPC-вызовах
+      @CacheEvict — сбрасывается при update/delete                              
+    end note
+  }                                                                             
+                  
+  package "chat-service (PostgreSQL)" #FFF8E8 {                                 
+    class chats {
+      PK id : UUID                                                              
+      --                                                                        
+      created_by : UUID NOT NULL                                                
+      name : VARCHAR NOT NULL                                                   
+      icon_object_name : VARCHAR NULL
+      icon_bucket_name : VARCHAR NULL                                           
+      icon_file_size : BIGINT NULL
+      icon_updated_at : TIMESTAMP NULL                                          
+      description : TEXT NULL                                                   
+      is_group_chat : BOOLEAN NOT NULL                                          
+      created_at : TIMESTAMP NOT NULL                                           
+      is_deleted : BOOLEAN DEFAULT false
+    }                                                                           
+    class chat_participants {
+      PK id : UUID                                                              
+      --
+      FK chat_id : UUID NOT NULL                                                
+      user_id : UUID NOT NULL                                                   
+      role : ENUM(CREATOR, ADMIN, PARTICIPANT) NOT NULL
+      joined_at : TIMESTAMP NOT NULL                                            
+      UNIQUE(chat_id, user_id)                                                  
+    }                                                                           
+    chats "1" --> "0..*" chat_participants : contains                           
+  }                                                                             
+   
+  package "message-service (PostgreSQL)" #F8E8FF {                              
+    class messages {
+      PK id : BIGINT (sequence)                                                 
+      --          
+      chat_id : UUID NOT NULL
+      from_user_id : UUID NOT NULL                                              
+      content : TEXT NULL                                                       
+      type : ENUM(TEXT,IMAGE,VIDEO,AUDIO,DOCUMENT) DEFAULT TEXT                 
+      bucket_name : VARCHAR NULL                                                
+      object_name : VARCHAR NULL                                                
+      file_name : VARCHAR NULL                                                  
+      file_size : BIGINT NULL                                                   
+      created_at : TIMESTAMP NOT NULL                                           
+      updated_at : TIMESTAMP NULL                                               
+      deleted : BOOLEAN DEFAULT false
+      deleted_at : TIMESTAMP NULL                                               
+      is_edited : BOOLEAN DEFAULT false
+      FK reply_to_message_id : BIGINT NULL                                      
+    }                                                                           
+    class message_statuses {
+      PK id : BIGINT (sequence)                                                 
+      --                                                                        
+      FK message_id : BIGINT NOT NULL
+      user_id : UUID NOT NULL                                                   
+      status : ENUM(SENT, DELIVERED, READ) DEFAULT SENT
+      read_at : TIMESTAMP NULL                                                  
+      UNIQUE(message_id, user_id)                                               
+    }                                                                           
+    class message_outbox_events {                                               
+      PK id : UUID                                                              
+      --
+      aggregate_id : VARCHAR NOT NULL                                           
+      topic : VARCHAR NOT NULL                                                  
+      payload : BYTEA NOT NULL
+      created_at : TIMESTAMP NOT NULL                                           
+      sent : BOOLEAN DEFAULT false
+    }                                                                           
+    messages "1" --> "0..*" message_statuses : tracked by                       
+    messages "0..1" --> "0..*" messages : reply_to (self-ref)                   
+  }                                                                             
+                  
+  package "mail-service (PostgreSQL)" #FFE8E8 {                                 
+    class mail_tokens {
+      PK id : BIGINT                                                            
+      --                                                                        
+      token : UUID UNIQUE NOT NULL                                              
+      user_id : UUID NOT NULL                                                   
+      email : VARCHAR NOT NULL
+      is_used : BOOLEAN DEFAULT false
+      warning_sent : BOOLEAN DEFAULT false                                      
+      created_at : TIMESTAMP NOT NULL                                           
+      expires_at : TIMESTAMP NOT NULL                                           
+      confirmed_at : TIMESTAMP NULL                                             
+    }                                                                           
+    class mail_outbox_events {                                                  
+      PK id : UUID                                                              
+      --                                                                        
+      aggregate_id : VARCHAR NOT NULL                                           
+      topic : VARCHAR NOT NULL                                                  
+      payload : BYTEA NOT NULL                                                  
+      created_at : TIMESTAMP NOT NULL                                           
+      sent : BOOLEAN DEFAULT false                                              
+    }                                                                           
+  }               
+                                                                                
+  package "realtime-gateway (PostgreSQL)" #F0F0FF {                             
+    class realtime_outbox_events {
+      PK id : UUID                                                              
+      --          
+      aggregate_id : VARCHAR NOT NULL                                           
+      topic : VARCHAR NOT NULL                                                  
+      payload : BYTEA NOT NULL                                                  
+      created_at : TIMESTAMP NOT NULL                                           
+      sent : BOOLEAN DEFAULT false                                              
+    }                                                                           
+  }               
+
+  package "analytic-service (ClickHouse)" #FFF0E0 {                             
+    class analytics_events <<ClickHouse>> {
+      event_id : UUID                                                           
+      created_at : DateTime                                                     
+      payload : String (JSON)                                                   
+    }                                                                           
+  }                                                                             
+                  
+  package "fulltext-search-service (Elasticsearch)" #E0FFF0 {                   
+    class message_index <<Elasticsearch>> {
+      _id : String                                                              
+      message_id : Long                                                         
+      chat_id : UUID                                                            
+      sender_id : UUID                                                          
+      content : Text                                                            
+      message_type : Keyword
+      timestamp : Date                                                          
+    }
+  }                                                                             
+                  
+  package "api-gateway (Redis)" #FFE0FF {                                       
+    class rate_limit_bucket <<Redis>> {
+      key            : String (IP-based)                                        
+      replenish_rate : "5 req/s"
+      burst_capacity : 10                                                       
+    }             
+  }                                                                             
+                                                                                
+  @enduml

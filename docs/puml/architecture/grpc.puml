@@ -1,0 +1,95 @@
+@startuml grpc
+  title gRPC Communications — MessengerMicroservices
+
+  skinparam backgroundColor #FEFEFE
+  skinparam defaultFontSize 13
+  skinparam component {
+    BackgroundColor #E8F4FD
+    BorderColor #336699
+  }
+  skinparam interface {
+    BackgroundColor #FFF8CC
+    BorderColor #CC9900
+  }
+  skinparam ArrowColor #333333
+
+  component "file-service\n:8083 | gRPC :9091" as file_svc {
+    interface "FileGrpcService" as file_iface
+  }
+
+  component "account-service\n:8085 | gRPC :9092" as account_svc {
+    interface "AccountGrpcService" as account_iface
+  }
+
+  component "chat-service\n:8084 | gRPC :9092" as chat_svc {
+    interface "ChatGrpcService" as chat_iface
+  }
+
+  component "message-service\n:8082" as msg_svc
+  component "realtime-gateway\n:8086" as realtime_svc
+  component "fulltext-search-service\n:8087" as search_svc
+
+  note right of file_iface
+    **FileGrpcService** (file.proto)
+    ────────────────────────────────────
+    + UploadFile(stream UploadFileRequest)
+        returns UploadFileResponse
+      [client-streaming, chunk: 64 KB]
+      oneof: FileMetadata | FileChunk
+      Response: bucket_name, object_name
+
+    + GetPresignedUrl(GetPresignedUrlRequest)
+        returns GetPresignedUrlResponse
+      [unary]
+      Request: bucket_name, object_name
+      Response: url, expires_in_seconds
+  end note
+
+  note right of account_iface
+    **AccountGrpcService** (account.proto)
+    ──────────────────────────────────────
+    + GetAccountByEmail(GetAccountByEmailRequest)
+        returns GetAccountByEmailResponse
+      [unary]
+      Request: email
+      Response: user_id, username,
+                avatar_object_name,
+                avatar_bucket_name
+    Features: Redis caching
+  end note
+
+  note right of chat_iface
+    **ChatGrpcService** (chat.proto)
+    ────────────────────────────────────
+    + isUserExistsInChat(IsUserExistsInChatRequest)
+        returns IsUserExistsInChatResponse
+      [unary]
+      Request: userId, chatId
+      Response: userIsExists (bool)
+
+    + getChatParticipants(GetChatParticipantsRequest)
+        returns GetChatParticipantsResponse
+      [unary]
+      Request: chatId
+      Response: ids (repeated String)
+  end note
+
+  msg_svc       -[#0055CC]--> file_iface    : uploadFile()\ngetPresignedUrl()
+  msg_svc       -[#0055CC]--> chat_iface    : isUserExistsInChat()\ngetChatParticipants()
+  account_svc   -[#0055CC]--> file_iface    : uploadFile()\ngetPresignedUrl()
+  chat_svc      -[#0055CC]--> file_iface    : uploadFile()\ngetPresignedUrl()
+  chat_svc      -[#0055CC]--> account_iface : getAccountByEmail()
+  realtime_svc  -[#0055CC]--> chat_iface    : isUserExistsInChat()\ngetChatParticipants()
+  search_svc    -[#0055CC]--> chat_iface    : getChatParticipants()
+
+  note bottom
+    Transport: Plaintext (no TLS)
+    Client env vars:
+      FILE_SERVICE_GRPC_HOST/PORT    → file-service:9091
+      CHAT_SERVICE_GRPC_HOST/PORT    → chat-service:9092
+      ACCOUNT_SERVICE_GRPC_HOST/PORT → account-service:9092
+    Stubs: BlockingStub (sync) + AsyncStub (streaming)
+    Auto-configured via common module spring.factories
+  end note
+
+@enduml

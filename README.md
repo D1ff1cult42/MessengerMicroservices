@@ -71,37 +71,19 @@ RSA-подписанные JWT-токены, потоковая передача
 ---
 
 ## Архитектура
+![architecure.png](docs/img/architecture/architecure.png)
 
-```
-                              ┌─────────────────────────────────┐
-                              │         Клиент (HTTP/WS)        │
-                              └────────────────┬────────────────┘
-                                               │ :8080
-                              ┌────────────────▼────────────────┐
-                              │           api-gateway            │
-                              │   JWT validation · Rate Limit    │
-                              │   Circuit Breaker · Routing      │
-                              └──┬──────┬──────┬──────┬─────┬───┘
-                                 │      │      │      │     │
-             :8081               │:8082 │:8083 │:8084 │:8085│:8086..8088
-         ┌───┴───┐           ┌───┴──┐ ┌┴────┐┌┴────┐┌┴───┐ └─────────┐
-         │ auth  │           │ msg  │ │file ││chat ││acct│  realtime  │
-         │service│           │serv. │ │serv.││serv.││serv│  +mail     │
-         └───────┘           └──┬───┘ └──┬──┘└──┬──┘└────┘  +search  │
-                                │  gRPC  │      │            +analytic │
-                   ┌────────────┴────────┴──────┘                     │
-                   │            gRPC :9091/:9092                       │
-                   └────────────────────────────────────────────────── ┘
-                                        │
-                              ┌─────────▼─────────┐
-                              │       Kafka        │
-                              │  (KRaft, Avro)     │
-                              └───────────────────-┘
+## Базы данных
+![database.png](docs/img/architecture/database.png)
 
-Инфраструктура: PostgreSQL × 6 · Redis · MinIO · Elasticsearch · ClickHouse
-Наблюдаемость:  Prometheus · Grafana · Loki · Tempo · Alloy
-```
+## Grpc сообщения
+![grpc.png](docs/img/architecture/grpc.png)
 
+## Kafka сообщения
+![kafka.png](docs/img/architecture/kafka.png)
+
+## Базовый userflow
+![userflow.png](docs/img/architecture/userflow.png)
 ---
 
 ## Сервисы
@@ -131,7 +113,6 @@ RSA-подписанные JWT-токены, потоковая передача
 ### auth-service — порт 8081
 
 Аутентификация и авторизация пользователей.
-
 - Регистрация (email + пароль + username) — одношаговая, сразу возвращает токены
 - Логин, логаут, логаут со всех устройств
 - JWT Access Token (RSA-подпись) + Refresh Token (хранится в Redis)
@@ -280,14 +261,14 @@ WebSocket-шлюз для реального времени.
 
 ## Базы данных
 
-| База данных | Сервис | Назначение |
-|---|---|---|
+| База данных | Сервис | Назначение   |
+|---|---|--------------|
 | `auth_db` | auth-service | users, outbox_events |
 | `account_db` | account-service | accounts, outbox_events |
 | `message_db` | message-service | messages, statuses |
 | `chat_db` | chat-service | chats, participants |
 | `mail_db` | mail-service | confirmation_tokens, outbox_events |
-| `realtime_db` | realtime-gateway | connections |
+| `realtime_db` | realtime-gateway | outbox_events|
 | Elasticsearch | fulltext-search-service | message index |
 | ClickHouse | analytic-service | analytics events |
 | Redis | auth-service, account-service, api-gateway | refresh tokens, cache, rate limiting |
